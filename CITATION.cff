@@ -1,0 +1,55 @@
+cff-version: 1.2.0
+message: "If you use this work, please cite it as below. It has not been peer reviewed."
+title: "The Duchet-Meyniel bound is asymptotically sharp for graphs with independence number two"
+type: software
+authors:
+  - family-names: "Ryan"
+    given-names: "Jack"
+version: "1.0.0"
+license: Apache-2.0
+doi: "10.5281/zenodo.24527010"
+repository-code: "https://github.com/jackryan225/duchet-meyniel-sharp"
+abstract: >-
+  Research driven, orchestrated and reviewed by Jack Ryan. Claude (by Anthropic), GPT-6.2 Astra (by OpenAI) and
+  Gemini 4 Neon (by Google) collaborated in finding and writing the proofs. The three theorems of
+  Challenge/Statement.lean (exists_small_hadwiger, not_linear_cm, not_hc_eps) are formalized in Lean 4.
+  Jack Ryan is not a professional mathematician, and no professional mathematician has refereed this work.
+  For every c > 0 there are arbitrarily large graphs G with independence number at most 2 in which every
+  connected matching has fewer than c|V(G)| edges, and the Hadwiger number of these graphs is less than
+  (1/3 + 2c)|V(G)| + 2/3. So the bound h(G) >= |V(G)|/3 of Duchet and Meyniel (1982) for graphs with
+  independence number at most 2 is asymptotically sharp, and the weak (linear) connected-matching conjecture of
+  Furedi, Gyarfas and Simonyi (2005, Conjecture 1.4) is false. The result is a parametric extension of OpenAI's
+  counterexample to Hadwiger's conjecture (github.com/openai/math): the marginal cap 2^1000 of OpenAI's Lean proof
+  became 2^(12Q+1) and the threshold m/100 became m/Q. Further consequences in the paper are paper arguments only.
+keywords:
+  - "Hadwiger's conjecture"
+  - "Hadwiger number"
+  - "graph minors"
+  - "independence number"
+  - "connected matching"
+  - "Duchet-Meyniel theorem"
+  - "claw-free graphs"
+  - "Lean 4"
+  - "formal verification"
+references:
+  - type: software
+    title: "openai/math (Lean library, folder lean/)"
+    authors:
+      - name: "OpenAI"
+    url: "https://github.com/openai/math"
+    commit: "3344da59991ed94f9ba711217b29c1d760badfa6"
+    license: Apache-2.0
+  - type: article
+    title: "Connected matchings and Hadwiger's conjecture"
+    authors:
+      - family-names: "Füredi"
+        given-names: "Zoltán"
+      - family-names: "Gyárfás"
+        given-names: "András"
+      - family-names: "Simonyi"
+        given-names: "Gábor"
+    journal: "Combinatorics, Probability and Computing"
+    volume: 14
+    year: 2005
+    start: 435
+    end: 438

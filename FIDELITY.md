@@ -112,8 +112,8 @@ h(G) ≥ min(c, 1) m for every graph with α(G) ≤ 2, and theorem 5 with ε rat
 
 (d) **Equivalence.** Thomassé observed that (b) and (c) are equivalent. Füredi, Gyárfás and Simonyi report this (citing
 Thomassé's note in the problem list of a 2002 meeting in Odense) and refer to Kawarabayashi, Plummer and Toft for a
-proof. The Lean proof does not use the equivalence. It derives theorem 5 from
-theorem 3, and theorem 3 uses only OpenAI's Lean form of the easy direction: h(G) ≤ (|V(G)| + 4 cm(G) + 2)/3 for every
+proof (J. Combin. Theory Ser. B 95 (2005), Theorem 1.5 and Section 4). The Lean proof does not use the equivalence.
+It derives theorem 5 from theorem 3, and theorem 3 uses only OpenAI's Lean form of the easy direction: h(G) ≤ (|V(G)| + 4 cm(G) + 2)/3 for every
 finite graph (`full_matching_minor_proposition`).
 
 ## 5. Consequences with a paper proof only (not in Lean)
@@ -129,7 +129,8 @@ finite graph (`full_matching_minor_proposition`).
   χ ≤ (3/2)h - 3/4. So 3/2 is the supremum and no graph attains it. None of this is in Lean.
 - **The clique threshold n/4 of Chudnovsky and Seymour is sharp.** Chudnovsky and Seymour (Combinatorica 32 (2012)) proved
   that a graph with α(G) ≤ 2 has a K_t minor with t = ⌈|V(G)|/2⌉ when it has a clique of at least |V(G)|/4 vertices
-  (|V(G)| even) or at least (|V(G)| + 3)/4 vertices (|V(G)| odd) (Theorem 1.3, as stated by OpenAI). Join a graph
+  (|V(G)| even) or at least (|V(G)| + 3)/4 vertices (|V(G)| odd) (Theorem 1.3; number and wording checked in the authors'
+  manuscript, not in the journal version). Join a graph
   G_0 of theorem 3 (n_0 vertices) to a complete graph K_q: every vertex of G_0 becomes adjacent to every vertex of K_q. Then
   α stays at most 2, ω = ω(G_0) + q, and h ≤ h(G_0) + q, because deleting one vertex lowers h by at most 1. With q just below
   n_0 - 2h(G_0) ≥ (1/3 - 4β)n_0 - 4/3 the joined graph has h < n/2 and ω/n → 1/4 as β → 0. So the constant 1/4 cannot be
@@ -160,6 +161,6 @@ finite graph (`full_matching_minor_proposition`).
 - The axioms propext, Classical.choice and Quot.sound. No other axiom and no `sorry` occur in the closure. The only `sorry`
   in the project is in `Challenge/Statement.lean`, whose role is to state the theorems.
 
-Kernel checks of the closure: the Lean kernel during the build; `leanchecker` replayed 292 modules (288 of OpenAI and our
-4); `lean4lean` (an independent kernel written in Lean) checked the export of the five theorems with all their dependencies
-(39,086 declarations). All exited with code 0 in a build of the published files from an empty folder (`logs/`).
+Kernel checks of the closure: the Lean kernel during the build; a `leanchecker` replay (the same kernel code) of 292
+modules (288 of OpenAI and our 4); `lean4lean` (a second, independent kernel, written in Lean) checked the export of the
+five theorems with all their dependencies (39,086 declarations). All exited with code 0 in a build of the published files from an empty folder (`logs/`).

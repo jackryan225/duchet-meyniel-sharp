@@ -4,6 +4,8 @@ Research driven, orchestrated and reviewed by Jack Ryan. Claude (by Anthropic), 
 
 No professional mathematician has refereed this repository.
 
+Archived at Zenodo: https://doi.org/10.5281/zenodo.24527010
+
 ## The claim
 
 The section "Terms" below defines every term and symbol.
@@ -60,8 +62,12 @@ The proofs are in `lean/OAI/Combinatorics/HadwigerScaled/Main.lean`, together wi
 - The project builds with exit code 0. The only `sorry` is in the statement file, which states the theorems.
 - `#print axioms` gives exactly `propext`, `Classical.choice` and `Quot.sound` for all five theorems.
 - The definitions and the three statements, printed in full, are byte-identical in the statement file and in the proof.
-- `leanchecker` replays 292 modules with exit code 0.
-- `lean4lean`, a second kernel, checks the five theorems and all their dependencies (39,086 declarations) with exit code 0.
+- `leanchecker` (a replay with the same kernel code) replays 292 modules with exit code 0.
+- `lean4lean`, a second, independent kernel, checks the five theorems and all their dependencies (39,086 declarations)
+  with exit code 0.
+
+So the proof is accepted by the Lean kernel, a `leanchecker` replay (the same kernel code) and `lean4lean` (a second,
+independent kernel).
 - A second build from an empty folder, with the files of this repository and OpenAI's files fetched by `lean/assemble.sh`,
   repeated all these checks with the same results.
 
@@ -92,9 +98,20 @@ The checks and their expected output are in `lean/README.md`. The build ran on a
 
 The result is a parametric extension of OpenAI's proof. OpenAI's graphs have independence number at most 2 and cm(G) <
 |V(G)|/100. Their proof fixes one parameter, a marginal cap equal to 2^1000. With this cap fixed, the final step of their
-proof cannot reach thresholds below a fixed positive constant. Their formal supersaturation theorem holds for every value of
-the cap. We changed two places: the cap 2^1000 became 2^(12Q+1), and the threshold m/100 became m/Q, for any positive
-integer Q. `lean/provenance.diff` shows the changes.
+proof cannot reach thresholds below a fixed positive constant.
+
+**What OpenAI's Lean library already contains.** The construction and their supersaturation theorem
+`eventual_conflict_lower_bound`, which is stated for an arbitrary parameter record and so holds for every value of the cap.
+The cap 2^1000 is fixed only in their parameter-existence lemmas and their exponential graph transfer, and the threshold
+m/100 comes from their two transfer theorems.
+
+**What this repository adds.** Copies of those parameter-existence lemmas with the cap 2^c for every real c; copies of the
+two transfer theorems with the threshold m/Q (and, in the exponential one, the cap 2^(12Q+1)) for every positive integer Q;
+a copy of OpenAI's existence theorem `exists_graphs` that uses them (`exists_graphs_div`); new proofs of the statement for
+rational β (`exists_graphs_beta`), of the bound on h (`exists_small_hadwiger`) and of the two refutations (`not_linear_cm`,
+`not_hc_eps`); and the statement file `Challenge/Statement.lean`.
+`lean/provenance.diff` shows how the three copied files and the copied theorem differ from OpenAI's; the rest of our
+`Main.lean` is new.
 OpenAI wrote that their fixed coefficient "leaves the weaker conjecture for smaller positive coefficients unresolved"
 (A counterexample to Hadwiger's conjecture, manuscript dated 23 September 2026, section "Historical context").
 
@@ -110,8 +127,8 @@ OpenAI wrote that their fixed coefficient "leaves the weaker conjecture for smal
   form: some constant c gives every graph with ct vertices and α(G) = 2 a connected matching of size t. It is false.
   Costa, Luu, Wood and Yip call it Linear-CM (Conjecture 1.8); Conlon, Fox and Sudakov state it as their Conjecture 7.1.
   The same paper states Seymour's problem as Conjecture 1.3 and the sharp form (4t - 1 vertices) as Conjecture 1.5, and
-  reports Thomassé's observation that Conjectures 1.3 and 1.4 are equivalent. The Lean proof does not need this
-  equivalence.
+  reports Thomassé's observation that Conjectures 1.3 and 1.4 are equivalent; Kawarabayashi, Plummer and Toft (J. Combin.
+  Theory Ser. B 95 (2005), Theorem 1.5) prove it. The Lean proof does not need this equivalence.
 - **OpenAI** (manuscript dated 23 September 2026, made public in October 2026) proved cm(G) < |V(G)|/100 and
   h(G) < 26|V(G)|/75 + 2/3 for their graphs. This disproved Hadwiger's conjecture and the sharp conjecture of Füredi,
   Gyárfás and Simonyi. The repository github.com/EdouardBonnet/hadwiger-counterexample ports OpenAI's Lean proof of that
@@ -127,6 +144,11 @@ OpenAI wrote that their fixed coefficient "leaves the weaker conjecture for smal
   of Kawarabayashi, Plummer and Toft, hexagonmath.org (full texts of 1550 of its 1560 works), nilradical.ai, proofatlas.ai,
   the Palomar registry, vibemathed.com, Zenodo, GitHub, MathOverflow. Such searches cannot be complete. Kawarabayashi, Wood
   and Yip (10 November 2026) still describe the question for 1/3 as open.
+- **Mantis Discovery**, "Clique minors and fractional clique covers in graphs with independence number two" (Zenodo, 19
+  October 2026, doi:10.5281/zenodo.23484533), proves lower bounds on h(G) in terms of χ(G) for graphs with α(G) ≤ 2 whose
+  fractional clique cover number is bounded (h ≥ χ for all clique inflations when it is below 31/8) and for inflations of
+  the complement of the Higman-Sims graph; it does not treat connected matchings or the constant 1/3. Its thresholds do not
+  reach our inflation example below, whose graphs have fractional clique cover number above 8s + 4 (paper, Section 6).
 
 ## Further consequences (paper proofs, not in Lean)
 
@@ -181,9 +203,10 @@ Norin and Seymour and Yip use; the application to the triangle-free process is t
 - `Challenge/Statement.lean`: the three main statements in Mathlib terms.
 - `lean/`: our four Lean modules, the project configuration, `assemble.sh`, the SHA-256 lists and `provenance.diff`.
 - `logs/`: build and check logs.
-- `paper/alpha2-third.tex`: the paper (LaTeX source).
+- `paper/alpha2-third.tex`: the paper (LaTeX source); `paper/alpha2-third.pdf`: the same paper, compiled with Tectonic.
 - `FIDELITY.md`: what the Lean statements mean.
 - `LICENSE`, `NOTICE`: Apache License 2.0; the files that contain code from OpenAI's library.
+- `CITATION.cff`: how to cite this repository.
 
 ## License
 

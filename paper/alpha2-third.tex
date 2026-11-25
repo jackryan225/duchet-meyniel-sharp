@@ -1,4 +1,4 @@
-% Release version, 25 November 2026. Not compiled on the machine where it was written (no LaTeX there): lint only.
+% Release version, 25 November 2026. Compiled with Tectonic 0.17.0 (XeTeX); the PDF is paper/alpha2-third.pdf.
 \documentclass[11pt]{article}
 \usepackage{amsmath,amssymb,amsthm,fullpage}
 \usepackage[hidelinks]{hyperref}
@@ -13,13 +13,14 @@
 \newcommand{\cm}{\operatorname{cm}}
 \newcommand{\eps}{\varepsilon}
 \newcommand{\RS}{\mathrm{RS}}
+\emergencystretch=3em
 
 \title{The Duchet--Meyniel bound is asymptotically sharp\\ for graphs with independence number two}
 \author{Research driven, orchestrated and reviewed by Jack Ryan.\\
 Claude (by Anthropic), GPT-6.2 Astra (by OpenAI) and Gemini 4 Neon (by Google)\\
 collaborated in finding and writing the proofs.\\
 The main theorems are formalized in Lean 4 (Section~\ref{s:verify}).}
-\date{25 November 2026}
+\date{25 November 2026\\ DOI: \href{https://doi.org/10.5281/zenodo.24527010}{10.5281/zenodo.24527010}}
 
 \begin{document}
 \maketitle
@@ -30,7 +31,7 @@ order at least $|V(G)|/3$. We show that the constant $1/3$ cannot be improved: f
 large graphs with $\alpha\le2$ in which every connected matching (a matching whose edges are pairwise joined by an edge) has
 fewer than $\beta|V(G)|$ edges, and hence $h(G)<(1/3+\tfrac43\beta)|V(G)|+\tfrac23$.
 So $\inf h(G)/|V(G)|=1/3$ over nonempty graphs with $\alpha(G)\le2$. This refutes the weak (linear)
-connected-matching conjecture of F\"uredi, Gy\'arf\'as and Simonyi and, equivalently, answers in the negative Seymour's
+connected-matching conjecture of F\"uredi, Gy\'arf\'as and Simonyi and answers in the negative Seymour's
 question whether $h(G)\ge(1/3+\eps)|V(G)|$ for some $\eps>0$. Along a sequence of these graphs with $\beta\to0$,
 $\chi(G)/h(G)\to3/2$, which by a theorem of B\"ohme, Kostochka and Thomason is the exact supremum of $\chi/h$ for
 $\alpha\le2$, and the ratio constants $\rho$ and $\rho_d$ of Kawarabayashi, Wood and Yip for claw-free graphs both equal
@@ -103,11 +104,16 @@ of OpenAI's proof. What we add is (a) an audit showing that the marginal cap $M=
 theorem, the one constant that keeps $\beta$ away from $0$ in \cite{OAIH}, can be replaced by any fixed $M\ge1$
 (Proposition~\ref{p:uniform}); (b) the corresponding change of the
 graph transfer (Lemma~\ref{l:transfer}); (c) a Lean~4 proof of the main statements, obtained from OpenAI's Lean proof by
-the same two changes (Section~\ref{s:verify}). In the Lean proof, OpenAI's formal supersaturation theorem is used
-unchanged; it already holds for every value of the cap. So the Lean proof does not depend on the paper audit (a). A second, independent route
+the same two changes (Section~\ref{s:verify}). OpenAI's Lean library already contains the construction and its formal
+supersaturation theorem, stated for an arbitrary parameter record and so for every value of the cap; the cap $2^{1000}$ is
+fixed only in its parameter-existence lemmas and its exponential graph transfer, and the threshold $m/100$ comes from its
+two transfer theorems. Our Lean files add copies of these lemmas with the cap $2^c$ for every real $c$, copies of the two transfer
+theorems with the threshold $m/Q$ (and, in the exponential one, the cap $2^{12Q+1}$) for every positive integer $Q$, a copy
+of OpenAI's existence theorem that uses them, and new proofs of the statements for rational $\beta$, of the bound on $h$
+and of the two refutations of Corollary~\ref{c:conj}; so the Lean proof does not depend on the paper audit (a). A second, independent route
 through the companion Colin de Verdi\`ere paper \cite{OAIC} is sketched in Section~\ref{s:second}.
 
-\subsection{History}
+\subsection{History}\label{s:history}
 Hadwiger conjectured in 1943 that $h(G)\ge\chi(G)$ \cite{Had}. For $\alpha(G)\le2$ every colour class has at most two
 vertices, so $\chi(G)\ge|V(G)|/2$, and Plummer, Stiebitz and Toft \cite[Theorem~3.1]{PST} showed that the restriction of the
 conjecture to $\alpha(G)\le2$ is equivalent to the statement that every such graph has a $K_{\lceil |V(G)|/2\rceil}$ minor.
@@ -127,8 +133,9 @@ problem session in Odense, that the two conjectures are equivalent, with a proof
 survey \cite{Sey}: whether some constant $c>1/3$ gives every graph $G$ with $\alpha(G)=2$ a $K_t$ minor with
 $t\ge c|V(G)|$. Costa, Luu, Wood and Yip call it $\mathrm{HC}_\eps$ \cite[Conjecture~1.7]{CLWY}, and Conlon, Fox and Sudakov
 write that Seymour and Mader have both asked it \cite[Section~7]{CFS}. Yip \cite[Theorem~7]{Yip} proved a dense variant:
-linear-size matchings in which the proportion of non-touching pairs is arbitrarily small. (We have not read \cite{KPT}
-itself; its role here follows \cite{FGS,CLWY}.)
+linear-size matchings in which the proportion of non-touching pairs is arbitrarily small. Kawarabayashi, Plummer and
+Toft prove the equivalence \cite[Theorem~1.5 and Section~4]{KPT}. Its direction from $\mathrm{HC}_\eps$ to Linear-CM also
+follows from Lemma~\ref{l:mm} below, and that lemma is the only part of the equivalence that our proofs use.
 
 In a manuscript dated 23 September 2026 and made public in October 2026, OpenAI gave a construction of graphs with
 $\alpha(G)\le2$ and $\cm(G)<|V(G)|/100$ \cite[thm:main]{OAIH},
@@ -136,6 +143,12 @@ which disproves Hadwiger's conjecture and the sharp FGS conjecture. The authors 
 \cite[subsection ``Historical context'']{OAIH}: ``The fixed coefficient in [the main theorem] leaves the weaker conjecture for
 smaller positive coefficients unresolved; it does not assert $\mathrm{cm}(G)=o(|V(G)|)$.'' Theorem~\ref{t:main} supplies
 exactly this, by the same construction.
+
+A preprint of Mantis Discovery \cite{MD} proves lower bounds on $h(G)$ in terms of $\chi(G)$ for graphs with $\alpha(G)\le2$
+whose fractional clique cover number is bounded (in particular $h(G)\ge\chi(G)$ for every clique inflation of such a graph
+when that number is below $31/8$) and for inflations of the complement of the Higman--Sims graph; it does not treat
+connected matchings or the constant $1/3$, and its thresholds are far below the fractional clique cover number of the
+graphs of Remark~\ref{r:infl} (see the paragraph after that remark).
 
 \section{The OpenAI construction as a black box}\label{s:box}
 We use \cite{OAIH} only through the following objects and facts; section and label names refer to that paper.
@@ -212,7 +225,7 @@ fixed $M\ge1$ in place of $2^{1000}$, the constants after $M$ being chosen for t
 Section~\ref{s:verify}. For the Lean proof it is not needed: see Remark~\ref{r:lean}.
 
 \begin{remark}[machine evidence]\label{r:lean}
-In OpenAI's Lean development \cite{OAIL} (module family \texttt{OAI.Combinatorics.HadwigerCounterexample}) the marginal cap
+In OpenAI's Lean development \cite{OAIL} (module family \nolinkurl{OAI.Combinatorics.HadwigerCounterexample}) the marginal cap
 is a free real field \texttt{L} of the structure \texttt{PreparationParameters}; the admissibility predicate asks only
 $0\le\texttt{L}$; the phase calendar \texttt{phase\_calendar g r k d D L}, under the hypothesis $0\le\texttt{L}$, concludes a statement eventually in
 $h$, so $h$ is chosen after $\texttt{L}$, and its retained mass does not contain \texttt{L}; and
@@ -333,8 +346,8 @@ Chudnovsky and Fradkin \cite{CF}.)
 
 \begin{remark}[the clique threshold $|V|/4$]\label{r:cs}
 Chudnovsky and Seymour \cite[Theorem~1.3]{CS} proved that a graph with $\alpha(G)\le2$ has a $K_{\lceil |V(G)|/2\rceil}$
-minor when $\omega(G)\ge|V(G)|/4$ ($|V(G)|$ even) or $\omega(G)\ge(|V(G)|+3)/4$ ($|V(G)|$ odd) (statement as given in
-\cite[subsection ``Historical context'']{OAIH}). The constant $1/4$ cannot be
+minor when $\omega(G)\ge|V(G)|/4$ ($|V(G)|$ even) or $\omega(G)\ge(|V(G)|+3)/4$ ($|V(G)|$ odd) (the number and wording
+were checked in the authors' manuscript; we did not see the journal version). The constant $1/4$ cannot be
 lowered. Let $G_0$ be a graph of Theorem~\ref{t:main} with $n_0$ vertices, and let $G$ be the join of $G_0$ and $K_q$ (every
 vertex of $G_0$ joined to every vertex of $K_q$), with $n=n_0+q$. Then $\alpha(G)\le2$, $\omega(G)=\omega(G_0)+q$, and
 $h(G)\le h(G_0)+q$, since deleting one vertex lowers the Hadwiger number by at most one. So $h(G)<n/2$ whenever
@@ -347,7 +360,7 @@ fixed bound $h<26n_0/75+2/3$ alone gives the same with $\omega/n$ up to about $2
 Disjoint unions of copies of our graphs give $h\approx|V(G)|/(3j)$ with $\alpha=2j$, which does not reach the
 Duchet--Meyniel value $|V(G)|/(4j-1)$. For $\alpha\ge3$ the bound of Theorem~\ref{t:dm} is improvable: Kawarabayashi and
 Song replaced $2\alpha-1$ by $2\alpha-2$ \cite[Theorem~4.4]{Sey} (an earlier improvement to $2\alpha-3/2$ is due to
-Kawarabayashi, Plummer and Toft \cite{KPT}); for large $\alpha$ the best factor is $0.51338\,|V(G)|/\alpha(G)$ of
+Kawarabayashi, Plummer and Toft \cite[Theorem~1.4]{KPT}); for large $\alpha$ the best factor is $0.51338\,|V(G)|/\alpha(G)$ of
 Balogh and Kostochka \cite{BK}. So $\alpha=2$ is the case in which the bound of Duchet and Meyniel is asymptotically
 sharp.
 \end{remark}
@@ -516,6 +529,14 @@ $N/2-h(I)\ge n/6-\tfrac{2s}3\omega-\tfrac{s+1}3(4\cm(G)+2)$, which is positive w
 is large. As $\alpha(I)=2$, $\chi_f(I)\ge N/2>h(I)$.
 \end{remark}
 
+\noindent\emph{Fractional clique covers.} The fractional clique cover number $\theta_f(F)$ of a graph $F$ is the least total
+weight of a nonnegative weighting of its cliques in which the cliques through each vertex have total weight at least $1$.
+The conclusions $h\ge\chi-1$ and $h\ge\chi$ of \cite{MD} need $\theta_f\le4$, and the graphs of Remark~\ref{r:infl} are far
+from that range. Indeed $2\omega\le4\cm(G)+2$, so the positivity used in the remark gives $(4s+2)\omega<n/2$. Every graph
+$F$ has $\theta_f(F)\ge|V(F)|/\omega(F)$, and $\theta_f$ does not increase when one passes to an induced subgraph. Since
+$G$ is an induced subgraph of $B$ and $G[K_{s+1}]$ is one of $I$, this gives $\theta_f(B)\ge n/\omega>8s+4$ and
+$\theta_f(I)\ge(s+1)n/((s+1)\omega)>8s+4$.
+
 \begin{remark}[a density gap for half-order minors]\label{r:dense}
 Norin and Seymour \cite{NS} proved that every graph with $\alpha(G)=2$ has a minor with $\lceil|V(G)|/2\rceil$ vertices and edge
 density at least $\gamma-o(1)$, where $\gamma=0.98688\ldots$. The best constant in that theorem is less than $1$:
@@ -580,15 +601,17 @@ Lemma~\ref{l:mm}, which is in OpenAI's Lean library, and $\cm<\beta m$. The pape
 Lemma~\ref{l:transfer} is not part of the Lean statements. The
 proof consists of four new modules \texttt{OAI.Combinatorics.HadwigerScaled.\{ScaledParameters, ScaledTransfer,
 ScaledExponential, Main\}} on top of 288 unchanged files of OpenAI's Lean library \cite{OAIL}. Three of the new modules are
-copies of OpenAI files with the cap $2^{1000}$ replaced by $2^{12Q+1}$ and the threshold $m/100$ by $m/Q$. The build of the
+copies of OpenAI files with the cap $2^{1000}$ replaced by a parameter (used with the value $2^{12Q+1}$) and the threshold
+$m/100$ by $m/Q$. The build of the
 closure (9,216 jobs) ends with exit code~0 and has no \texttt{sorry} outside the statement file. For each of the five
 theorems \texttt{exists\_graphs\_div}, \texttt{exists\_graphs\_beta}, \texttt{exists\_small\_hadwiger},
 \texttt{not\_linear\_cm} and \texttt{not\_hc\_eps}, \texttt{\#print axioms} lists only \texttt{propext},
 \texttt{Classical.choice} and \texttt{Quot.sound}. A statement file that imports only Mathlib states the last three theorems
 with OpenAI's definitions of connected matchings and clique minors; the fully elaborated text of these definitions and
-statements is byte-identical in the statement file and in the proof. Two further checks accept the proof:
-\texttt{leanchecker}, which replays the Lean kernel, replayed all 292 modules, and \texttt{lean4lean}, an independent
-kernel, checked an export of the five theorems with all their dependencies (39,086 declarations). A second build from an
+statements is byte-identical in the statement file and in the proof. Besides the Lean kernel during the build, two
+further checks accept the proof: a \texttt{leanchecker} replay (the same kernel code) of all 292 modules, and
+\texttt{lean4lean}, a second, independent kernel, which checked an export of the five theorems with all their dependencies
+(39,086 declarations). A second build from an
 empty folder, with the files as published and OpenAI's files fetched at the pinned commit, repeated all these checks with
 the same results. The Lean statements give, for each rational $\beta>0$, infinitely many orders $m$ with a
 graph satisfying $\alpha\le2$, $\cm<\beta m$ and $h<(1/3+2\beta)m+2/3$; the repository file \texttt{FIDELITY.md} compares them
@@ -609,7 +632,8 @@ statement that Linear-CM or $\mathrm{HC}_\eps$ fails,
 or that $\inf h/|V|=1/3$ for $\alpha\le2$: arXiv listings and full texts of the closest papers (including Xie,
 arXiv:2610.17090, and Kawarabayashi, Wood and Yip, arXiv:2611.11205, who state that the constant $1/3$ cannot be replaced by
 any constant above $26/75$), the AI-mathematics tracker vibemathed.com (which lists the weak conjecture as not settled),
-the full \TeX{} of 1,550 of the 1,560 works on hexagonmath.org, the Palomar registry, nilradical.ai, proofatlas.ai, Zenodo,
+the full \TeX{} of 1,550 of the 1,560 works on hexagonmath.org, the Palomar registry, nilradical.ai, proofatlas.ai, Zenodo
+(a related record there, \cite{MD}, is discussed in Section~\ref{s:history}),
 GitHub issues and pull requests, MathOverflow, the lists of papers that cite \cite{FGS}, \cite{Fox} and \cite{KPT}, and the
 arXiv math.CO listings of 19 to 25 November 2026.
 
@@ -623,7 +647,7 @@ $\alpha\le2$ of order $m^{1-c}$ for some $c>0$? Equivalently, what is the order 
 \item \emph{Explicit graphs.} Are there explicit or algebraic graphs with $\alpha\le2$ and $\cm=o(m)$, of reasonable size?
 \end{enumerate}
 
-\begin{thebibliography}{99}
+\begin{thebibliography}{99}\raggedright
 \bibitem{BK} J.~Balogh and A.~Kostochka, Large minors in graphs with given independence number, \emph{Discrete Math.}
 \textbf{311} (2011), 2203--2215.
 \bibitem{Bon} GitHub user \texttt{EdouardBonnet}, \texttt{hadwiger-counterexample}: a Lean~4 port of OpenAI's
@@ -652,7 +676,7 @@ conjecture, \emph{J. Combin. Theory Ser. B} \textbf{95} (2005), 152--167.
 \bibitem{KWY} K.~Kawarabayashi, D.~R.~Wood and J.~H.~Yip, Independence number and odd dominating models,
 arXiv:2611.11205v2 (10 November 2026).
 \bibitem{OAIH} OpenAI, A counterexample to Hadwiger's conjecture, preprint, 23 September 2026, repository
-\texttt{openai/math}, \texttt{preprints/A-counterexample-to-Hadwigers-conjecture-September-23-2026}.
+\texttt{openai/math}, \nolinkurl{preprints/A-counterexample-to-Hadwigers-conjecture-September-23-2026}.
 \bibitem{OAIC} OpenAI, A counterexample to the Colin de Verdi\`ere chromatic conjecture, preprint, 23 September 2026, same repository.
 \bibitem{OAIL} OpenAI, Lean library of the \texttt{openai/math} repository, commit \texttt{3344da59991ed94f9ba711217b29c1d760badfa6}, modules
 \texttt{OAI.Combinatorics.HadwigerCounterexample}; scope file \texttt{lean/docs/157.md}.
@@ -665,6 +689,8 @@ eds.), Springer, 2016, 417--437.
 \bibitem{Fox11} J.~Fox, Constructing dense graphs with sublinear Hadwiger number, arXiv:1108.4953 (2011).
 \bibitem{HW} D.~J.~Harvey and D.~R.~Wood, Parameters tied to treewidth, \emph{J. Graph Theory} (2017),
   doi:10.1002/jgt.22030; arXiv:1312.3401v2.
+\bibitem{MD} Mantis Discovery, Clique minors and fractional clique covers in graphs with independence number two,
+  preprint, Zenodo, 19 October 2026, doi:10.5281/zenodo.23484533.
 \bibitem{NS} S.~Norin and P.~Seymour, Dense minors of graphs with independence number two, \emph{J. Combin. Theory
   Ser. B} \textbf{176} (2026), 101--110.
 \end{thebibliography}
