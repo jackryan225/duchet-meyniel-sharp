@@ -1,8 +1,6 @@
 # The Duchet-Meyniel bound is asymptotically sharp for graphs with independence number two
 
-Research driven, orchestrated and reviewed by Jack Ryan. Claude (by Anthropic), GPT-6.2 Astra (by OpenAI) and Gemini 4 Neon (by Google) collaborated in finding and writing the proofs. The main theorems are formalized in Lean 4.
-
-No professional mathematician has refereed this repository.
+Orchestrated and formally verified by Jack Ryan in collaboration with Claude Opus 5.5, Claude Fable 5.2, GPT-6.2 Astra, and Gemini 4 Neon. The main theorems are formalized in Lean 4 (preprint, not yet peer reviewed).
 
 Archived at Zenodo: https://doi.org/10.5281/zenodo.24527010
 
