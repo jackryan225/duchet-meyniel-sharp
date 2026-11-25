@@ -1,0 +1,6 @@
+OK: 288 OpenAI files and 5 files of this repository match OAI-SHA256SUMS and OURS-SHA256SUMS.
+Next (needs elan; the build used Lean 4.34.1 and Mathlib d13f23b, see lean-toolchain and lake-manifest.json):
+  lake exe cache get
+  ulimit -n 8192; LEAN_NUM_THREADS=4 lake build OAI.Combinatorics.HadwigerScaled.Main ComparatorChallenge.HadwigerScaled
+  lake env lean Check/Axioms.lean
+  lake env lean Check/ChallengeView.lean > chal.txt; lake env lean Check/SolutionView.lean > sol.txt; cmp chal.txt sol.txt

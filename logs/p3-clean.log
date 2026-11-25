@@ -1,0 +1,139 @@
+=== start 2026-11-25T08:19:56Z on build-host in $HOME/build/p3-clean/release/lean
+ 'sh' '$HOME/build/scripts/p3-clean.sh'
+--- STEP 1-assemble: sh assemble.sh $HOME/build/p3-clean/oai-checkout
+OK: 288 OpenAI files and 5 files of this repository match OAI-SHA256SUMS and OURS-SHA256SUMS.
+Next (needs elan; the build used Lean 4.34.1 and Mathlib d13f23b, see lean-toolchain and lake-manifest.json):
+  lake exe cache get
+  ulimit -n 8192; LEAN_NUM_THREADS=4 lake build OAI.Combinatorics.HadwigerScaled.Main ComparatorChallenge.HadwigerScaled
+  lake env lean Check/Axioms.lean
+  lake env lean Check/ChallengeView.lean > chal.txt; lake env lean Check/SolutionView.lean > sol.txt; cmp chal.txt sol.txt
+
+--- STEP 1-assemble: exit 0
+--- STEP 2-build: lake exe cache get && lake build OAI.Combinatorics.HadwigerScaled.Main ComparatorChallenge.HadwigerScaled
+rexample.RelationMismatchBounds (2.1s)
+✔ [9201/9216] Built OAI.Combinatorics.HadwigerCounterexample.FiniteOptionLabels (1.0s)
+✔ [9202/9216] Built OAI.Combinatorics.HadwigerCounterexample.BinaryStatusComparison (2.0s)
+✔ [9203/9216] Built OAI.Combinatorics.HadwigerCounterexample.UniqueStatusCoefficients (2.1s)
+✔ [9204/9216] Built OAI.Combinatorics.HadwigerCounterexample.FinitePredictions (1.0s)
+✔ [9205/9216] Built OAI.Combinatorics.HadwigerCounterexample.PredictedDualCoefficients (2.0s)
+✔ [9206/9216] Built OAI.Combinatorics.HadwigerCounterexample.PredictedDualEvaluation (2.6s)
+✔ [9207/9216] Built OAI.Combinatorics.HadwigerCounterexample.PredictionExtraction (2.0s)
+✔ [9208/9216] Built OAI.Combinatorics.HadwigerCounterexample.PositiveTestMass (2.4s)
+✔ [9209/9216] Built OAI.Combinatorics.HadwigerCounterexample.AggregateCostBounds (3.9s)
+✔ [9210/9216] Built OAI.Combinatorics.HadwigerCounterexample.FiniteComparisonBounds (2.2s)
+✔ [9211/9216] Built OAI.Combinatorics.HadwigerCounterexample.ForbiddenPredictions (2.3s)
+✔ [9212/9216] Built OAI.Combinatorics.HadwigerCounterexample.PredictionClassBounds (2.3s)
+✔ [9213/9216] Built OAI.Combinatorics.HadwigerCounterexample.CompatiblePairTests (2.4s)
+✔ [9214/9216] Built OAI.Combinatorics.HadwigerCounterexample.FinalContradiction (2.0s)
+✔ [9215/9216] Built OAI.Combinatorics.HadwigerCounterexample.Main (21s)
+✔ [9216/9216] Built OAI.Combinatorics.HadwigerScaled.Main (6.6s)
+Build completed successfully (9216 jobs).
+
+--- STEP 2-build: exit 0
+--- STEP 3-axioms: lake env lean Check/Axioms.lean
+'OAI.HadwigerCounterexample.exists_graphs_div' depends on axioms: [propext, Classical.choice, Quot.sound]
+'OAI.HadwigerCounterexample.exists_graphs_beta' depends on axioms: [propext, Classical.choice, Quot.sound]
+'OAI.HadwigerCounterexample.exists_small_hadwiger' depends on axioms: [propext, Classical.choice, Quot.sound]
+'OAI.HadwigerCounterexample.not_linear_cm' depends on axioms: [propext, Classical.choice, Quot.sound]
+'OAI.HadwigerCounterexample.not_hc_eps' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+--- STEP 3-axioms: exit 0
+--- STEP 4-chal: lake env lean Check/ChallengeView.lean
+tOfNatNat (nat_lit 2))) →
+                @LE.le.{0} Rat Rat.instLE
+                  (@HMul.hMul.{0, 0, 0} Rat Rat Rat (@instHMul.{0} Rat Rat.instMul) c
+                    (@Nat.cast.{0} Rat Rat.instNatCast m))
+                  (@Nat.cast.{0} Rat Rat.instNatCast (@OAI.HadwigerMatching.connectedMatchingNumber.{0} (Fin m) G))))
+OAI.HadwigerCounterexample.not_hc_eps : Not
+  (@Exists.{1} Rat fun (ε : Rat) =>
+    And (@LT.lt.{0} Rat Rat.instLT (@OfNat.ofNat.{0} Rat (nat_lit 0) (@Rat.instOfNat (nat_lit 0))) ε)
+      (@Exists.{1} Nat fun (M : Nat) =>
+        ∀ (m : Nat),
+          @GE.ge.{0} Nat instLENat m M →
+            ∀ (G : SimpleGraph.{0} (Fin m)),
+              @LE.le.{0} Nat instLENat (@SimpleGraph.indepNum.{0} (Fin m) G)
+                  (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2))) →
+                @LE.le.{0} Rat Rat.instLE
+                  (@HMul.hMul.{0, 0, 0} Rat Rat Rat (@instHMul.{0} Rat Rat.instMul)
+                    (@HAdd.hAdd.{0, 0, 0} Rat Rat Rat (@instHAdd.{0} Rat Rat.instAdd)
+                      (@HDiv.hDiv.{0, 0, 0} Rat Rat Rat (@instHDiv.{0} Rat Rat.instDiv)
+                        (@OfNat.ofNat.{0} Rat (nat_lit 1) (@Rat.instOfNat (nat_lit 1)))
+                        (@OfNat.ofNat.{0} Rat (nat_lit 3) (@Rat.instOfNat (nat_lit 3))))
+                      ε)
+                    (@Nat.cast.{0} Rat Rat.instNatCast m))
+                  (@Nat.cast.{0} Rat Rat.instNatCast (@OAI.LinearListHadwiger.hadwigerNumber (Fin m) G))))
+
+--- STEP 4-chal: exit 0
+--- STEP 4-sol: lake env lean Check/SolutionView.lean
+tOfNatNat (nat_lit 2))) →
+                @LE.le.{0} Rat Rat.instLE
+                  (@HMul.hMul.{0, 0, 0} Rat Rat Rat (@instHMul.{0} Rat Rat.instMul) c
+                    (@Nat.cast.{0} Rat Rat.instNatCast m))
+                  (@Nat.cast.{0} Rat Rat.instNatCast (@OAI.HadwigerMatching.connectedMatchingNumber.{0} (Fin m) G))))
+OAI.HadwigerCounterexample.not_hc_eps : Not
+  (@Exists.{1} Rat fun (ε : Rat) =>
+    And (@LT.lt.{0} Rat Rat.instLT (@OfNat.ofNat.{0} Rat (nat_lit 0) (@Rat.instOfNat (nat_lit 0))) ε)
+      (@Exists.{1} Nat fun (M : Nat) =>
+        ∀ (m : Nat),
+          @GE.ge.{0} Nat instLENat m M →
+            ∀ (G : SimpleGraph.{0} (Fin m)),
+              @LE.le.{0} Nat instLENat (@SimpleGraph.indepNum.{0} (Fin m) G)
+                  (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2))) →
+                @LE.le.{0} Rat Rat.instLE
+                  (@HMul.hMul.{0, 0, 0} Rat Rat Rat (@instHMul.{0} Rat Rat.instMul)
+                    (@HAdd.hAdd.{0, 0, 0} Rat Rat Rat (@instHAdd.{0} Rat Rat.instAdd)
+                      (@HDiv.hDiv.{0, 0, 0} Rat Rat Rat (@instHDiv.{0} Rat Rat.instDiv)
+                        (@OfNat.ofNat.{0} Rat (nat_lit 1) (@Rat.instOfNat (nat_lit 1)))
+                        (@OfNat.ofNat.{0} Rat (nat_lit 3) (@Rat.instOfNat (nat_lit 3))))
+                      ε)
+                    (@Nat.cast.{0} Rat Rat.instNatCast m))
+                  (@Nat.cast.{0} Rat Rat.instNatCast (@OAI.LinearListHadwiger.hadwigerNumber (Fin m) G))))
+
+--- STEP 4-sol: exit 0
+CMP chal sol: identical (    8820 bytes)
+CMP chal vs old hw-sol.txt (07:38Z build): identical
+--- STEP 5-leanchecker: lake env leanchecker -v OAI.Combinatorics.HadwigerScaled OAI.Combinatorics.HadwigerCounterexample OAI.Combinatorics.HadwigerMatching OAI.Combinatorics.ListHadwiger
+rdinates
+replaying OAI.Combinatorics.HadwigerCounterexample.MixerProductVariables
+replaying OAI.Combinatorics.HadwigerCounterexample.CompatiblePairTests
+replaying OAI.Combinatorics.HadwigerCounterexample.FiniteGraphTransfer
+replaying OAI.Combinatorics.HadwigerCounterexample.FreshGeneratorCorrection
+replaying OAI.Combinatorics.HadwigerCounterexample.StatusCharts
+replaying OAI.Combinatorics.HadwigerCounterexample.KeyProjectionBounds
+replaying OAI.Combinatorics.HadwigerCounterexample.ForbiddenPredictions
+replaying OAI.Combinatorics.HadwigerCounterexample.TensorIntersections
+replaying OAI.Combinatorics.HadwigerCounterexample.BatchCharacters
+replaying OAI.Combinatorics.HadwigerCounterexample.FlatRankLevels
+replaying OAI.Combinatorics.HadwigerCounterexample.RectangleComparisons
+replaying OAI.Combinatorics.HadwigerCounterexample.FourCornerMasks
+replaying OAI.Combinatorics.HadwigerCounterexample.Main
+replaying OAI.Combinatorics.HadwigerCounterexample.EndpointTemplateConcentration
+replaying OAI.Combinatorics.HadwigerCounterexample.FlatLevelShifts
+replaying OAI.Combinatorics.HadwigerCounterexample.PairedEventBounds
+replaying OAI.Combinatorics.HadwigerCounterexample.UnaryQueryFrequencies
+replaying OAI.Combinatorics.HadwigerCounterexample.PredictedDualCoefficients
+replaying OAI.Combinatorics.HadwigerScaled.ScaledParameters
+replaying OAI.Combinatorics.HadwigerScaled.ScaledExponential
+replaying OAI.Combinatorics.HadwigerScaled.ScaledTransfer
+replaying OAI.Combinatorics.HadwigerScaled.Main
+
+--- STEP 5-leanchecker: exit 0
+modules replayed: 292
+axioms: 5 standard of 5
+sorry warnings in build: 3
+warning: ComparatorChallenge/HadwigerScaled.lean:46:8: declaration uses `sorry`
+warning: ComparatorChallenge/HadwigerScaled.lean:53:8: declaration uses `sorry`
+warning: ComparatorChallenge/HadwigerScaled.lean:59:8: declaration uses `sorry`
+--- lean4export OAI.Combinatorics.HadwigerScaled.Main -- OAI.HadwigerCounterexample.exists_graphs_div OAI.HadwigerCounterexample.exists_graphs_beta OAI.HadwigerCounterexample.exists_small_hadwiger OAI.HadwigerCounterexample.not_linear_cm OAI.HadwigerCounterexample.not_hc_eps
+       15.04 real        10.51 user         3.62 sys
+          6106267648  maximum resident set size
+export bytes 314851478
+--- lean4export: exit 0
+theorems in export: 28877 axioms in export: ['Classical.choice', 'Quot.sound', 'propext'] missing named theorems: []
+EXPORT-OK
+--- lean4lean --import p3.ndjson
+checked 39086 declarations
+       45.22 real        40.80 user         0.77 sys
+           544604160  maximum resident set size
+--- lean4lean: exit 0
+=== exit 0 at 2026-11-25T08:33:25Z

@@ -1,0 +1,458 @@
+% Release version, 25 November 2026. Not compiled on the machine where it was written (no LaTeX there): lint only.
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm,fullpage}
+\usepackage[hidelinks]{hyperref}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{question}[theorem]{Question}
+\theoremstyle{remark}\newtheorem{remark}[theorem]{Remark}
+\newcommand{\cm}{\operatorname{cm}}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\RS}{\mathrm{RS}}
+
+\title{The Duchet--Meyniel bound is asymptotically sharp\\ for graphs with independence number two}
+\author{Research driven, orchestrated and reviewed by Jack Ryan.\\
+Claude (by Anthropic), GPT-6.2 Astra (by OpenAI) and Gemini 4 Neon (by Google)\\
+collaborated in finding and writing the proofs.\\
+The main theorems are formalized in Lean 4 (Section~\ref{s:verify}).}
+\date{25 November 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Duchet and Meyniel proved in 1982 that every graph $G$ with independence number $\alpha(G)\le2$ has a complete minor of
+order at least $|V(G)|/3$. We show that the constant $1/3$ cannot be improved: for every $\beta>0$ there are arbitrarily
+large graphs with $\alpha\le2$ in which every connected matching (a matching whose edges are pairwise joined by an edge) has
+fewer than $\beta|V(G)|$ edges, and hence $h(G)<(1/3+\tfrac43\beta)|V(G)|+\tfrac23$.
+So $\inf h(G)/|V(G)|=1/3$ over nonempty graphs with $\alpha(G)\le2$. This refutes the weak (linear)
+connected-matching conjecture of F\"uredi, Gy\'arf\'as and Simonyi and, equivalently, answers in the negative Seymour's
+question whether $h(G)\ge(1/3+\eps)|V(G)|$ for some $\eps>0$. Along a sequence of these graphs with $\beta\to0$,
+$\chi(G)/h(G)\to3/2$, which by a theorem of B\"ohme, Kostochka and Thomason is the exact supremum of $\chi/h$ for
+$\alpha\le2$, and the ratio constants $\rho$ and $\rho_d$ of Kawarabayashi, Wood and Yip for claw-free graphs both equal
+$2/3$. The result is a parametric extension of OpenAI's proof of their counterexample to Hadwiger's conjecture (manuscript
+dated 23 September 2026). That proof gives the fixed bound $\cm(G)<|V(G)|/100$, and its authors state that the weak
+conjecture stays open. Their proof fixes a marginal cap $M=2^{1000}$, and with $M$ fixed its final graph transfer cannot
+reach targets below a fixed positive constant; we check that the proof works for every fixed $M\ge1$. Theorem~\ref{t:main}
+for rational $\beta$ together with the bound $h(G)<(1/3+2\beta)|V(G)|+2/3$, the upper half of Corollary~\ref{c:third},
+and Corollary~\ref{c:conj} are proved in Lean~4 on top of OpenAI's Lean development, with only the three standard axioms.
+The other corollaries are short paper arguments on top of the Lean statements and published theorems.
+\end{abstract}
+
+\section{Introduction}
+Graphs are finite and simple. For a graph $G$ write $\alpha(G)$, $\omega(G)$, $\chi(G)$, $\chi_f(G)$ and $h(G)$ for the
+independence number, clique number, chromatic number, fractional chromatic number and Hadwiger number (the largest $t$ with a
+$K_t$ minor). Two disjoint edges \emph{touch} if some edge joins their endpoint sets; a \emph{connected matching} is a matching
+whose edges touch pairwise, and $\cm(G)$ is the largest size of one. Two disjoint edges \emph{conflict} if all four cross pairs
+are non-adjacent; conflicting edges cannot lie in one connected matching.
+
+\begin{theorem}[Duchet--Meyniel \cite{DM}]\label{t:dm}
+Every graph $G$ satisfies $h(G)\ge |V(G)|/(2\alpha(G)-1)$. In particular $h(G)\ge|V(G)|/3$ when $\alpha(G)\le2$.
+\end{theorem}
+
+Our main result is the following.
+
+\begin{theorem}\label{t:main}
+For every $\beta\in(0,1]$ there are arbitrarily large integers $m$ and $m$-vertex graphs $G$ with
+\[
+ \alpha(G)\le2\qquad\text{and}\qquad \cm(G)<\beta m .
+\]
+Equivalently, every matching of $G$ with at least $\beta m$ edges contains two conflicting edges.
+\end{theorem}
+
+\begin{corollary}\label{c:third}
+$\inf\{h(G)/|V(G)|:\alpha(G)\le2,\ |V(G)|\ge1\}=1/3$. More precisely, for every $\eps>0$ there are arbitrarily large graphs with
+$\alpha(G)\le2$ and $h(G)<(1/3+\eps)|V(G)|$; by Theorem~\ref{t:dm} no graph with $\alpha\le2$ has $h<|V(G)|/3$.
+\end{corollary}
+
+\begin{corollary}\label{c:conj}
+The following statements are false.
+\begin{enumerate}
+\item[(i)] (Linear-CM; weak form of the conjecture of F\"uredi, Gy\'arf\'as and Simonyi \cite{FGS}.) There is $c_0>0$ such
+that $\cm(G)\ge c_0|V(G)|$ for every sufficiently large graph $G$ with $\alpha(G)\le2$.
+\item[(ii)] ($\mathrm{HC}_\eps$; Seymour \cite{Sey}.) There is $\eps>0$ such that $h(G)\ge(1/3+\eps)|V(G)|$ for every graph
+$G$ with $\alpha(G)\le2$.
+\end{enumerate}
+\end{corollary}
+
+\begin{corollary}\label{c:ratio}
+There are graphs $G_j$ with $\alpha(G_j)\le2$ and $|V(G_j)|\to\infty$ such that $\chi(G_j)/h(G_j)\to3/2$ and
+$\chi_f(G_j)/h(G_j)\to3/2$.
+\end{corollary}
+
+OpenAI's graphs give $\chi(G)>\frac{75}{52}h(G)-\frac{25}{26}$ \cite[cor:hadwiger]{OAIH}, so $\liminf\chi/h\ge75/52$
+along their growing witnesses; Corollary~\ref{c:ratio}, along witnesses with $\beta_j\to0$ and $|V(G_j)|\to\infty$, gives
+the limit $3/2$. By a theorem of B\"ohme, Kostochka and Thomason \cite{BKT}, $\chi<\frac32h$ for every nonempty graph
+with $\alpha\le2$, so $3/2$ is the exact supremum (Remark~\ref{r:upper}). Theorem~\ref{t:main} for rational $\beta$, the
+upper half of Corollary~\ref{c:third} and Corollary~\ref{c:conj} are proved in Lean (Section~\ref{s:verify}). The lower
+half of Corollary~\ref{c:third} (Theorem~\ref{t:dm}), Corollary~\ref{c:ratio}, Remark~\ref{r:upper},
+Corollary~\ref{c:kwy} and Remark~\ref{r:cs} are paper arguments on top of the Lean statements and the cited theorems.
+
+\medskip\noindent\textbf{Status of the result.} The graphs come from the random construction of OpenAI's counterexample to
+Hadwiger's conjecture \cite{OAIH}, with scaled parameters. That paper proves Theorem~\ref{t:main} for the single value
+$\beta=1/100$ (and so for every $\beta\ge1/100$). Its proof is long (fourteen sections), it has not been refereed, and the
+selected consequence $h(G)<26m/75+2/3<m/2\le\chi(G)$ is formalized in OpenAI's Lean library \cite{OAIL}; the repository
+\cite{Bon} ports that Lean proof (with its 288 upstream modules) and reports a kernel replay. The present paper is a parametric extension
+of OpenAI's proof. What we add is (a) an audit showing that the marginal cap $M=2^{1000}$ of the raw supersaturation
+theorem, the one constant that keeps $\beta$ away from $0$ in \cite{OAIH}, can be replaced by any fixed $M\ge1$
+(Proposition~\ref{p:uniform}); (b) the corresponding change of the
+graph transfer (Lemma~\ref{l:transfer}); (c) a Lean~4 proof of the main statements, obtained from OpenAI's Lean proof by
+the same two changes (Section~\ref{s:verify}). In the Lean proof, OpenAI's formal supersaturation theorem is used
+unchanged; it already holds for every value of the cap. So the Lean proof does not depend on the paper audit (a). A second, independent route
+through the companion Colin de Verdi\`ere paper \cite{OAIC} is sketched in Section~\ref{s:second}.
+
+\subsection{History}
+Hadwiger conjectured in 1943 that $h(G)\ge\chi(G)$ \cite{Had}. For $\alpha(G)\le2$ every colour class has at most two
+vertices, so $\chi(G)\ge|V(G)|/2$, and Plummer, Stiebitz and Toft \cite[Theorem~3.1]{PST} showed that the restriction of the
+conjecture to $\alpha(G)\le2$ is equivalent to the statement that every such graph has a $K_{\lceil |V(G)|/2\rceil}$ minor.
+Theorem~\ref{t:dm} gives $|V(G)|/3$, and for a long time the improvements were of lower order: Fox \cite[Theorem~2]{Fox}
+proved $h(G)\ge |V(G)|/3+c|V(G)|^{4/5}(\log|V(G)|)^{1/5}$ for $\alpha(G)\le2$, and his argument also gives connected
+matchings of size $\Omega(|V(G)|^{4/5}(\log |V(G)|)^{1/5})$.
+
+F\"uredi, Gy\'arf\'as and Simonyi \cite{FGS} introduced connected matchings in this setting. They conjectured the sharp
+statement that every graph with $\alpha=2$ on $4t-1$ vertices has a connected matching of size $t$
+\cite[Conjecture~1.5]{FGS} (verified for $t\le17$ by them \cite[Theorem~1.6]{FGS} and for $t\le22$ by Chen and Deng
+\cite{CD}; Cambie \cite{Cam} showed that Hadwiger's conjecture implies it), and they stated the weaker linear form: some
+constant $c$ gives every graph with $ct$ vertices and $\alpha=2$ a connected matching of size $t$ \cite[Conjecture~1.4]{FGS}.
+This is Corollary~\ref{c:conj}(i) (Linear-CM, \cite[Conjecture~1.8]{CLWY}; \cite[Conjecture~7.1]{CFS}). They state
+Seymour's problem of improving $1/3$ as \cite[Conjecture~1.3]{FGS}, and they report that Thomass\'e noted, at a 2002
+problem session in Odense, that the two conjectures are equivalent, with a proof by Kawarabayashi, Plummer and Toft
+\cite{KPT} (see also \cite[Section~7]{CFS} and \cite[Section~1]{CLWY}). The question is Open question~4.8 of Seymour's
+survey \cite{Sey}: whether some constant $c>1/3$ gives every graph $G$ with $\alpha(G)=2$ a $K_t$ minor with
+$t\ge c|V(G)|$. Costa, Luu, Wood and Yip call it $\mathrm{HC}_\eps$ \cite[Conjecture~1.7]{CLWY}, and Conlon, Fox and Sudakov
+write that Seymour and Mader have both asked it \cite[Section~7]{CFS}. Yip \cite[Theorem~7]{Yip} proved a dense variant:
+linear-size matchings in which the proportion of non-touching pairs is arbitrarily small. (We have not read \cite{KPT}
+itself; its role here follows \cite{FGS,CLWY}.)
+
+In a manuscript dated 23 September 2026 and made public in October 2026, OpenAI gave a construction of graphs with
+$\alpha(G)\le2$ and $\cm(G)<|V(G)|/100$ \cite[thm:main]{OAIH},
+which disproves Hadwiger's conjecture and the sharp FGS conjecture. The authors write
+\cite[subsection ``Historical context'']{OAIH}: ``The fixed coefficient in [the main theorem] leaves the weaker conjecture for
+smaller positive coefficients unresolved; it does not assert $\mathrm{cm}(G)=o(|V(G)|)$.'' Theorem~\ref{t:main} supplies
+exactly this, by the same construction.
+
+\section{The OpenAI construction as a black box}\label{s:box}
+We use \cite{OAIH} only through the following objects and facts; section and label names refer to that paper.
+For each $n$ there are a finite set $\Omega_n$ of \emph{raw vertices}, a strictly positive probability measure $\mu$ on
+$\Omega_n$, and a symmetric relation of \emph{holes} on $\Omega_n$ with no loops and no triangles (no three raw vertices
+pairwise in holes) \cite[lem:hole-triangle-free]{OAIH}. The ambient dimension is $N=M_0n$. A \emph{unit} is an ordered pair
+$(x,y)\in\Omega_n^2$ that is not a hole; two units \emph{conflict} if all four cross pairs are holes. For a probability law
+$\sigma$ on units let $\sigma_1,\sigma_2$ be its marginals. The construction constants are fixed in the order
+\begin{equation}\label{eq:order}
+ \begin{gathered}
+ (C_0,g,D,M,k_{\max},\zeta,K_1)\to(r,L_0,d_0,u_0,K,\text{tolerances},p_0)\\
+ \to(R_*,j_*,B_0,B_*,b,p_*,A,s_0,J)\to(r_0,h)\to M_0\to n
+ \end{gathered}
+\end{equation}
+\cite[Section~14]{OAIH}, with $C_0=1000$, $g=10^9+1$, $D=4C_0g$ and $M=2^{1000}$.
+
+\begin{definition}
+For a real $M\ge1$ let $\RS(M)$ be the statement: \emph{one can choose the constants after $M$ in \eqref{eq:order} so that for
+all sufficiently large $n$, every law $\sigma$ on units with}
+\begin{equation}\label{eq:caps}
+ \sigma_1\le M\mu,\qquad\sigma_2\le M\mu,\qquad \sigma\le2^{DN}\mu^{\otimes2}
+\end{equation}
+\emph{gives two independent $\sigma$-units that conflict with probability at least $2^{-100gN}$.}
+\end{definition}
+
+\begin{theorem}[Raw supersaturation {\cite[thm:raw-supersaturation]{OAIH}}]\label{t:rs}
+$\RS(2^{1000})$ holds.
+\end{theorem}
+
+$\RS(M)$ becomes stronger as $M$ grows, since the class of admissible laws grows. It has a simple necessary condition:
+if $S\subseteq\Omega_n$ contains no hole and $\mu(S)\ge1/M$, then $\sigma=(\mu|_S/\mu(S))^{\otimes2}$ satisfies
+\eqref{eq:caps} for large $n$ and has no conflicts. Indeed, every pair in $S\times S$ is a unit (holes have no loops and $S$
+contains no hole), both marginals equal $\mu|_S/\mu(S)\le M\mu$, the joint law is at most
+$\mu^{\otimes2}/\mu(S)^2\le M^2\mu^{\otimes2}\le2^{DN}\mu^{\otimes2}$ once $2^{DN}\ge M^2$, and two units inside
+$S\times S$ cannot conflict because their cross pairs lie in $S\times S$ and are not holes. So $\RS(M)$ for every $M$ forces
+the $\mu$-mass of hole-free sets to tend to $0$; this matches $\omega(G)\le2\cm(G)+1<2\beta m+1$ for the graphs of
+Theorem~\ref{t:main}.
+
+\section{The marginal cap is free}\label{s:uniform}
+\begin{proposition}[conditional on \cite{OAIH}]\label{p:uniform}
+$\RS(M)$ holds for every real $M\ge1$.
+\end{proposition}
+
+\begin{proof}[Proof (audit)]
+In \eqref{eq:order} the cap $M$ is in the first group, and none of $k_{\max},\zeta,K_1$ or of the constants of the second
+group ($r,L_0,d_0,u_0,K$ are explicit in $D$ and $\zeta$; the tolerances are numbers; $p_0$ depends on $r,D$ and numbers)
+depends on $M$. Every later constant may depend on $M$. It therefore suffices that the proof of Theorem~\ref{t:rs} never
+needs $M$ to be smaller than a quantity fixed before $M$, and that every use of $M$ is paid by a constant chosen after $M$.
+The proof of Theorem~\ref{t:rs} is by contradiction along a sequence of laws \cite[Section~13]{OAIH}, and the marginal cap
+enters only in the following places (line numbers of the TeX sources of \cite{OAIH}):
+\begin{enumerate}
+\item Peeling (\texttt{03-frame-laws}, l.280--330) uses only the joint cap; after a restriction of mass $2^{-o(N)}$ the
+marginals are at most $M2^{o(N)}\mu$: a constant factor.
+\item Phase estimates (\texttt{07-phases}). The fixed positive-mass restrictions (l.57--66) have mass bounded below in terms
+of $D,g,K_1$ and numbers only, so the marginal bound after them is $L\mu$ with $L$ a constant multiple of $M$. Then $L$
+multiplies an exceptional mass $2^{-\Omega(N)}$ (l.290--303), is absorbed into $M_0$ (l.380--386), and enters the
+requirement $L\,O(r)\,2^{2r-h}<10^{-4}$ (l.395--400), which is met by the choice of $h$ after $M$. In the injection lemma
+(l.560--640) it multiplies $2^{-\Omega(N)}$.
+\item Preparation (\texttt{08-preparation}, l.158--160, 192--197, 351, 444--447, 497--499, 614): the marginal bound appears as a
+fixed factor in front of an $o(1)$ reference error, or as an $M2^{o(N)}$ inflation of $2^{-\Omega(n)}$ errors.
+\item Histograms (\texttt{09-histograms}, l.510--518): caps $M2^{a_nN}\mu$; the authors remark there that the value of the
+fixed factor $M$ is immaterial. The same mixed bound is used in \texttt{11-common-limit} (l.326) and \texttt{13-rare-overlap}
+(l.77, 184), only through the typicality lemma, with errors $2^{-\Omega(n)}$.
+\item The collision criterion (\texttt{06-collision}) and the status-span section (\texttt{12-status-span}, l.555--570) use
+exponential scales only.
+\item In the probability-scale table (\texttt{14-parameters}, l.140--150, 399--425) the one-vertex density factor enters a
+lower bound on $h$; all other entries treat $M$ like $2^{o(N)}$.
+\end{enumerate}
+No step compares $M$ with a constant chosen before $M$. Hence the proof of Theorem~\ref{t:rs} goes through verbatim with any
+fixed $M\ge1$ in place of $2^{1000}$, the constants after $M$ being chosen for that $M$.
+\end{proof}
+
+\noindent Proposition~\ref{p:uniform} is the step that gives the extra strength. Its checks are listed in
+Section~\ref{s:verify}. For the Lean proof it is not needed: see Remark~\ref{r:lean}.
+
+\begin{remark}[machine evidence]\label{r:lean}
+In OpenAI's Lean development \cite{OAIL} (module family \texttt{OAI.Combinatorics.HadwigerCounterexample}) the marginal cap
+is a free real field \texttt{L} of the structure \texttt{PreparationParameters}; the admissibility predicate asks only
+$0\le\texttt{L}$; the phase calendar \texttt{phase\_calendar g r k d D L}, under the hypothesis $0\le\texttt{L}$, concludes a statement eventually in
+$h$, so $h$ is chosen after $\texttt{L}$, and its retained mass does not contain \texttt{L}; and
+\texttt{eventual\_conflict\_lower\_bound} is proved for arbitrary parameters. The value $2^{1000}$ occurs only in
+\texttt{ParameterExistence.lean}, where the equation $\texttt{b.L}=2^{1000}$ is used only to be exported, and in the final
+graph transfer. We restated the two parameter-existence lemmas with a parameter in place of $2^{1000}$ and the graph
+transfer with the threshold $m/Q$, and the resulting Lean proof of the main statements compiles
+(Section~\ref{s:verify}). In that proof the supersaturation theorem \texttt{eventual\_conflict\_lower\_bound} is OpenAI's,
+unchanged. So the formal proof covers the statement of Proposition~\ref{p:uniform} in OpenAI's Lean model of the
+construction, for every cap $2^{12Q+1}$.
+\end{remark}
+
+\section{The scaled graph transfer}\label{s:transfer}
+The following two facts are proved in \cite[Section~3]{OAIH}; their proofs do not use the value of $M$.
+
+\begin{lemma}[terminal cut {\cite[lem:terminal-cut]{OAIH}}]\label{l:cut}
+If $R\subseteq\Omega_n^2$ supports no probability law satisfying \eqref{eq:caps}, there are $S\subseteq\Omega_n$ and
+$E_0\subseteq\Omega_n^2$ with $\mu(S)<1/M$, $\mu^{\otimes2}(E_0)<2^{-DN}$, such that every pair in $R$ has an endpoint
+in $S$ or lies in $E_0$.
+\end{lemma}
+
+\begin{lemma}[entropy fingerprints {\cite[proof of prop:raw-to-graph]{OAIH}}]\label{l:fp}
+Assume the conclusion of $\RS(M)$ at $n$. There is a family $\mathcal T$ of sets of units with
+$\log|\mathcal T|=O(N^3\,2^{100gN})$, the constant independent of $M$, such that no $T\in\mathcal T$ supports a law
+satisfying \eqref{eq:caps}, and every set of pairwise non-conflicting units is contained in some $T\in\mathcal T$.
+\end{lemma}
+\noindent (The fingerprint length is $1+\lceil DN\log2/(-\log(1-2^{-100gN}))\rceil$, because the relative entropy of a
+feasible law lies in $[0,DN\log2]$; $M$ does not enter.)
+
+\begin{lemma}[scaled transfer]\label{l:transfer}
+Let $\beta\in(0,1]$ and $M\ge4e/\beta$. Assume the conclusion of $\RS(M)$ at a sufficiently large $n$. Let $m=2^{C_0gN}$, draw
+$x_1,\dots,x_m$ independently from $\mu$, and let $G$ be the graph on $\{1,\dots,m\}$ in which $i\ne j$ are adjacent iff
+$(x_i,x_j)$ is not a hole. Then $\alpha(G)\le2$ always, and with probability $1-\exp(-\Omega_\beta(m))$ every matching of
+$G$ with at least $\beta m$ edges contains two conflicting edges; in particular $\cm(G)<\beta m$.
+\end{lemma}
+
+\begin{proof}
+An independent triple of $G$ consists of three positions whose types are pairwise in holes; the types are distinct because
+holes have no loops, which contradicts triangle-freeness. So $\alpha(G)\le2$.
+
+Put $k=\lceil\beta m/2\rceil$. For each $T\in\mathcal T$ fix $S_T,E_T$ by Lemma~\ref{l:cut}. For a fixed $T$,
+\[
+ \Pr\bigl(|\{i:x_i\in S_T\}|\ge k\bigr)\le\binom mk\mu(S_T)^k\le\Bigl(\frac{em}{kM}\Bigr)^k\le\Bigl(\frac{2e}{\beta M}\Bigr)^k\le2^{-k}.
+\]
+A fixed family of $k$ disjoint ordered pairs of distinct positions consists of $2k$ independent $\mu$-draws, so lies in
+$E_T$ with probability less than $2^{-kDN}$; there are at most $m^{2k}$ such families, and
+$m^{2k}2^{-kDN}=2^{(2C_0g-D)Nk}=2^{-2C_0gNk}$. By Lemma~\ref{l:fp} and the union bound, the probability that some
+$T\in\mathcal T$ has at least $k$ positions in $S_T$ or $k$ disjoint position pairs in $E_T$ is at most
+\[
+ \exp\bigl(O(N^3 2^{100gN})\bigr)\bigl(2^{-k}+2^{-2C_0gNk}\bigr)=\exp(-\Omega_\beta(m)),
+\]
+because $k\ge\beta m/2=\beta2^{1000gN}/2$ while $N^32^{100gN}=o(m)$.
+
+On the complementary event, let $F$ be a matching of $G$ with $t\ge\beta m$ edges and assume no two of its edges conflict.
+Orient each edge $ij$ of $F$ and let $I$ be the set of units $(x_i,x_j)$ so obtained (repetitions allowed). Two units of $I$
+coming from different edges do not conflict, since conflicting types would make the two edges conflict; a unit does not
+conflict with itself because holes have no loops. So $I$ lies in some $T\in\mathcal T$, and every edge $ij$ of $F$ has
+$x_i\in S_T$ or $x_j\in S_T$ or $(x_i,x_j)\in E_T$. The edges of $F$ are disjoint, so at most $k-1$ of them meet a position
+of type in $S_T$, and the others form at most $k-1$ disjoint ordered position pairs in $E_T$. Hence
+$t\le2k-2<\beta m$, a contradiction. A connected matching has no conflicting pair, so $\cm(G)<\beta m$.
+\end{proof}
+
+\section{Proofs of the main results}\label{s:proofs}
+\begin{proof}[Proof of Theorem~\ref{t:main}]
+Given $\beta$, put $M=\max\{2^{1000},\lceil4e/\beta\rceil\}$. Proposition~\ref{p:uniform} gives $\RS(M)$, with constants
+(in particular $M_0$) depending on $\beta$. For every sufficiently large $n$, Lemma~\ref{l:transfer} gives a graph on
+$m=2^{C_0gM_0n}$ vertices with the two properties; $m\to\infty$ with $n$.
+\end{proof}
+
+\begin{lemma}[{\cite[prop:matching-minor]{OAIH}}, every graph]\label{l:mm}
+$h(G)\le(|V(G)|+4\cm(G)+2)/3$.
+\end{lemma}
+
+\begin{proof}[Proof of Corollaries~\ref{c:third} and \ref{c:conj}]
+For the graphs of Theorem~\ref{t:main}, Lemma~\ref{l:mm} gives $h(G)<(1+4\beta)m/3+2/3$. With $\beta=\eps/2$ this is below
+$(1/3+\eps)m$ once $m>2/\eps$. Theorem~\ref{t:dm} gives the lower bound $1/3$. Corollary~\ref{c:conj}(i) fails at
+$\beta<c_0$ and (ii) fails by Corollary~\ref{c:third}; the equivalence of (i) and (ii) \cite{KPT} is not needed.
+\end{proof}
+
+\begin{proof}[Proof of Corollary~\ref{c:ratio}]
+Let $G$ be as in Theorem~\ref{t:main}, with $m$ vertices. The vertices of a clique can be paired into $\lfloor\omega/2\rfloor$
+pairwise touching edges, so $\omega(G)\le2\cm(G)+1<2\beta m+1$. Since $\alpha(G)\le2$, colour classes are single vertices or
+non-adjacent pairs, so $\chi(G)=m-\nu(\overline G)$, where $\nu(\overline G)$ is the matching number of the complement. The
+vertices missed by a maximum matching of $\overline G$ are pairwise adjacent in $G$, so $m-2\nu(\overline G)\le\omega(G)$ and
+\begin{gather*}
+ \frac m2\le\chi_f(G)\le\chi(G)\le\frac{m+\omega(G)}2<\Bigl(\frac12+\beta\Bigr)m+\frac12,\\
+ \frac m3\le h(G)<\frac{(1+4\beta)m}3+\frac23 .
+\end{gather*}
+(The lower bound for $\chi_f$ is in the proof of \cite[cor:fractional-hadwiger]{OAIH}.) Take $\beta_j\to0$ and $m_j\to\infty$; both ratios tend to $3/2$.
+\end{proof}
+
+\begin{remark}[$3/2$ is the end]\label{r:upper}
+B\"ohme, Kostochka and Thomason \cite[Lemma~2.3]{BKT} proved $h(G)\ge(4\chi(G)-|V(G)|)/3$ for every graph with
+$\alpha(G)\le2$ (their Theorem~1.1 extends this to all graphs). Since $|V(G)|\le2\chi(G)$ when $\alpha(G)\le2$, this gives
+$\chi(G)\le\frac32h(G)$, and with their Lemma~2.1 ($h(G)\ge1+|V(G)|/3$ for $\alpha(G)\le2$ and $|V(G)|\ge5$) the
+inequality is strict. Hence, by Corollary~\ref{c:ratio},
+\[
+ \sup\{\chi(G)/h(G):\alpha(G)\le2,\ |V(G)|\ge1\}=\sup\{\chi_f(G)/h(G):\alpha(G)\le2,\ |V(G)|\ge1\}=3/2,
+\]
+and neither supremum is attained. The same lemma shows that any family with $h/|V|\to1/3$ must have
+$\chi=(1/2+o(1))|V|$; for our graphs this also follows from the bound $\chi\le(m+\omega)/2$ in the proof above.
+Explicitly, Lemmas~2.1 and 2.3 of \cite{BKT} give $h\ge1+n/3$ and $h\ge(4\chi-n)/3$; their sum gives
+$\chi\le\frac32h-\frac34$.
+\end{remark}
+
+\begin{corollary}[claw-free graphs]\label{c:kwy}
+Let $\rho$ and $\rho_d$ be the infima of $h(G)/\chi(G)$ and of $h_d(G)/\chi(G)$ over non-empty claw-free graphs $G$, where
+$h_d$ is the largest order of a dominating clique model, as in \cite[Section~1.1]{KWY}. Then $\rho=\rho_d=2/3$.
+\end{corollary}
+
+\begin{proof}
+Kawarabayashi, Wood and Yip record $2/3\le\rho_d\le\rho\le2/3+2/75$ and ask, as their Open Problem~(3), ``What are the
+constants $\rho$ and $\rho_d$?'' \cite[Sections~1.1 and~7]{KWY}. A graph with $\alpha(G)\le2$ is claw-free. For the graphs of
+Theorem~\ref{t:main}, $\chi(G)\ge m/2$ and $h(G)<(1+4\beta)m/3+2/3$, so $h(G)/\chi(G)<2/3+\tfrac83\beta+4/(3m)$. Hence
+$\rho\le2/3$, and so $\rho=\rho_d=2/3$. (The lower bound $2/3$ is \cite[Theorem~5]{KWY}, which generalizes a theorem of
+Chudnovsky and Fradkin \cite{CF}.)
+\end{proof}
+
+\begin{remark}[the clique threshold $|V|/4$]\label{r:cs}
+Chudnovsky and Seymour \cite[Theorem~1.3]{CS} proved that a graph with $\alpha(G)\le2$ has a $K_{\lceil |V(G)|/2\rceil}$
+minor when $\omega(G)\ge|V(G)|/4$ ($|V(G)|$ even) or $\omega(G)\ge(|V(G)|+3)/4$ ($|V(G)|$ odd) (statement as given in
+\cite[subsection ``Historical context'']{OAIH}). The constant $1/4$ cannot be
+lowered. Let $G_0$ be a graph of Theorem~\ref{t:main} with $n_0$ vertices, and let $G$ be the join of $G_0$ and $K_q$ (every
+vertex of $G_0$ joined to every vertex of $K_q$), with $n=n_0+q$. Then $\alpha(G)\le2$, $\omega(G)=\omega(G_0)+q$, and
+$h(G)\le h(G_0)+q$, since deleting one vertex lowers the Hadwiger number by at most one. So $h(G)<n/2$ whenever
+$q<n_0-2h(G_0)$, and $n_0-2h(G_0)>(1/3-\tfrac83\beta)n_0-\tfrac43$. With $q=\lceil(1/3-3\beta)n_0\rceil$ and $n_0$ large,
+$G$ has no $K_{\lceil n/2\rceil}$ minor and $\omega(G)/n\ge q/(n_0+q)$, which tends to $1/4$ as $\beta\to0$. (OpenAI's
+fixed bound $h<26n_0/75+2/3$ alone gives the same with $\omega/n$ up to about $23/98$.)
+\end{remark}
+
+\begin{remark}[larger independence number]
+Disjoint unions of copies of our graphs give $h\approx|V(G)|/(3j)$ with $\alpha=2j$, which does not reach the
+Duchet--Meyniel value $|V(G)|/(4j-1)$. For $\alpha\ge3$ the bound of Theorem~\ref{t:dm} is improvable: Kawarabayashi and
+Song replaced $2\alpha-1$ by $2\alpha-2$ \cite[Theorem~4.4]{Sey} (an earlier improvement to $2\alpha-3/2$ is due to
+Kawarabayashi, Plummer and Toft \cite{KPT}); for large $\alpha$ the best factor is $0.51338\,|V(G)|/\alpha(G)$ of
+Balogh and Kostochka \cite{BK}. So $\alpha=2$ is the case in which the bound of Duchet and Meyniel is asymptotically
+sharp.
+\end{remark}
+
+\section{A second route: the Colin de Verdi\`ere paper}\label{s:second}
+A second derivation, obtained independently (by GPT-6.2 Astra, before the first route was compared with it), uses the
+companion paper \cite{OAIC}. There the base graphs satisfy (G1): matchings of size $m/20$ split into classes of size at most
+$am$ contain conflicts between different classes, with a fixed $a>0$ \cite[thm:base-graphs]{OAIC}. The fixed scale again comes
+from a fixed endpoint cap, entering the coloured terminal cover as $\pi(S)<8/M$. The route replaces the symmetric
+distribution test by one with a prescribed endpoint cap $B$, choosing $B$ before the channel size $h$. Its key point is that
+the retained fraction of the symmetric phase theorem, $d_{\rm ph}=p_0d_{\rm cov}/(64R_0)$, and hence the colour threshold
+$\eta=s^2/512$ with $s=10^{-6}d_{\rm ph}/64$, do not depend on the cap, while the cap enters only lower bounds on $h$ and
+the size of $n$. The transfer then runs at density $\gamma$ with $B=\max\{2^{1000},128e/\gamma\}$, $a=\gamma\eta/64$ and
+$k=\lceil\gamma m/4\rceil$. This route needs colours, a palette, thinning and an asymmetric test, which the Hadwiger route of
+Sections~\ref{s:uniform}--\ref{s:transfer} avoids; it has no formal counterpart, since \cite{OAIL} does not cover \cite{OAIC}.
+Both routes rest on the long supersaturation arguments of OpenAI.
+
+\section{Verification state}\label{s:verify}
+\paragraph{Lean.} The statements of Theorem~\ref{t:main} for rational $\beta$ (its second sentence is the same statement,
+since two disjoint edges conflict exactly when they do not touch), of the upper bound in Corollary~\ref{c:third} and of
+Corollary~\ref{c:conj} are proved in Lean~4.34.1 with Mathlib (commit \texttt{d13f23b}). The exported bound on the
+Hadwiger number is $h<(1/3+2\beta)m+2/3$; the bound $(1/3+\tfrac43\beta)m+2/3$ of the abstract follows from
+Lemma~\ref{l:mm}, which is in OpenAI's Lean library, and $\cm<\beta m$. The paper's probability estimate in
+Lemma~\ref{l:transfer} is not part of the Lean statements. The
+proof consists of four new modules \texttt{OAI.Combinatorics.HadwigerScaled.\{ScaledParameters, ScaledTransfer,
+ScaledExponential, Main\}} on top of 288 unchanged files of OpenAI's Lean library \cite{OAIL}. Three of the new modules are
+copies of OpenAI files with the cap $2^{1000}$ replaced by $2^{12Q+1}$ and the threshold $m/100$ by $m/Q$. The build of the
+closure (9,216 jobs) ends with exit code~0 and has no \texttt{sorry} outside the statement file. For each of the five
+theorems \texttt{exists\_graphs\_div}, \texttt{exists\_graphs\_beta}, \texttt{exists\_small\_hadwiger},
+\texttt{not\_linear\_cm} and \texttt{not\_hc\_eps}, \texttt{\#print axioms} lists only \texttt{propext},
+\texttt{Classical.choice} and \texttt{Quot.sound}. A statement file that imports only Mathlib states the last three theorems
+with OpenAI's definitions of connected matchings and clique minors; the fully elaborated text of these definitions and
+statements is byte-identical in the statement file and in the proof. Two further checks accept the proof:
+\texttt{leanchecker}, which replays the Lean kernel, replayed all 292 modules, and \texttt{lean4lean}, an independent
+kernel, checked an export of the five theorems with all their dependencies (39,086 declarations). A second build from an
+empty folder, with the files as published and OpenAI's files fetched at the pinned commit, repeated all these checks with
+the same results. The Lean statements give, for each rational $\beta>0$, infinitely many orders $m$ with a
+graph satisfying $\alpha\le2$, $\cm<\beta m$ and $h<(1/3+2\beta)m+2/3$; the repository file \texttt{FIDELITY.md} compares them
+with the published wording of the conjectures.
+
+\paragraph{Paper checks.} A separate Claude agent read the second route (Section~\ref{s:second}) line by line against
+\cite{OAIC} and found no error; it found independently that the Lean development of \cite{OAIH} is parametric in the
+marginal cap. Two blind checks of the bare statement of Proposition~\ref{p:uniform}, given without our proof, were run.
+GPT-6.2 Astra, with read access to the TeX and Lean sources of \cite{OAIH}, judged it true, listed every use of the cap, and
+named as weakest step the fresh-probe deletion, whose prefactor must be controlled before $h$ is chosen (it is, by the
+single-frame transpose bound $2^{d-h+1}$). Gemini 4 Neon, given only Sections~3 and 14 of \cite{OAIH}, proved
+Lemma~\ref{l:transfer} in full and found no obstruction to Proposition~\ref{p:uniform}, but could not decide it from those two
+sections alone. None of these checks is a referee report. The paper proofs of \cite{OAIH} and \cite{OAIC} have not been
+refereed; the Lean proof does not depend on them.
+
+\paragraph{Novelty.} Searches made on 25 November 2026, in the sources listed here and only there, found no public
+statement that Linear-CM or $\mathrm{HC}_\eps$ fails,
+or that $\inf h/|V|=1/3$ for $\alpha\le2$: arXiv listings and full texts of the closest papers (including Xie,
+arXiv:2610.17090, and Kawarabayashi, Wood and Yip, arXiv:2611.11205, who state that the constant $1/3$ cannot be replaced by
+any constant above $26/75$), the AI-mathematics tracker vibemathed.com (which lists the weak conjecture as not settled),
+the full \TeX{} of 1,550 of the 1,560 works on hexagonmath.org, the Palomar registry, nilradical.ai, proofatlas.ai, Zenodo,
+GitHub issues and pull requests, MathOverflow, the lists of papers that cite \cite{FGS}, \cite{Fox} and \cite{KPT}, and the
+arXiv math.CO listings of 19 to 25 November 2026.
+
+\section{Open problems}
+\begin{enumerate}
+\item \emph{Rate.} Our graphs have $m=2^{C_0gM_0n}$ vertices with $M_0$ depending on $\beta$. Is there one sequence with
+$\cm(G)\le f(m)\,m$ and an explicit $f\to0$? Letting $M$ grow with $n$ would need $M=2^{o(N)}$ and uniform versions of several
+$o(1)$ steps of \cite{OAIH}.
+\item \emph{True order.} Fox's lower bound is $\cm(G)=\Omega(m^{4/5}(\log m)^{1/5})$; is $\min\cm$ over $m$-vertex graphs with
+$\alpha\le2$ of order $m^{1-c}$ for some $c>0$? Equivalently, what is the order of $\min h(G)-m/3$?
+\item \emph{Explicit graphs.} Are there explicit or algebraic graphs with $\alpha\le2$ and $\cm=o(m)$, of reasonable size?
+\end{enumerate}
+
+\begin{thebibliography}{99}
+\bibitem{BK} J.~Balogh and A.~Kostochka, Large minors in graphs with given independence number, \emph{Discrete Math.}
+\textbf{311} (2011), 2203--2215.
+\bibitem{Bon} GitHub user \texttt{EdouardBonnet}, \texttt{hadwiger-counterexample}: a Lean~4 port of OpenAI's
+formalization of their counterexample to Hadwiger's conjecture ($100\,\cm(G)<m$), GitHub repository
+\texttt{EdouardBonnet/hadwiger-counterexample}, kernel replay dated 11 October 2026.
+\bibitem{BKT} T.~B\"ohme, A.~Kostochka and A.~Thomason, Minors in graphs with high chromatic number, \emph{Combin.
+Probab. Comput.} \textbf{20} (2011), 513--518.
+\bibitem{CD} R.~Chen and Z.~Deng, Connected matchings in graphs with independence number two, \emph{Graphs Combin.}
+\textbf{41} (2025), Article 107; arXiv:2409.05920.
+\bibitem{CF} M.~Chudnovsky and A.~O.~Fradkin, An approximate version of Hadwiger's conjecture for claw-free graphs,
+\emph{J. Graph Theory} \textbf{63} (2010), 259--278.
+\bibitem{CS} M.~Chudnovsky and P.~Seymour, Packing seagulls, \emph{Combinatorica} \textbf{32} (2012), 251--282.
+\bibitem{Cam} S.~Cambie, Hadwiger's conjecture implies a conjecture of F\"uredi--Gy\'arf\'as--Simonyi, arXiv:2108.10303 (2021).
+\bibitem{CFS} D.~Conlon, J.~Fox and B.~Sudakov, Short proofs of some extremal results III, arXiv:1910.08661 (2019).
+\bibitem{CLWY} J.~Costa, E.~Luu, D.~R.~Wood and J.~H.~Yip, Verifying Hadwiger's conjecture for examples of graphs with
+$\alpha(G)=2$, arXiv:2512.17114 (2025).
+\bibitem{DM} P.~Duchet and H.~Meyniel, On Hadwiger's number and the stability number, in \emph{Graph Theory (Cambridge, 1981)},
+North-Holland Math.\ Stud.\ \textbf{62} (1982), 71--73.
+\bibitem{Fox} J.~Fox, Complete minors and independence number, \emph{SIAM J. Discrete Math.} \textbf{24} (2010), 1313--1321.
+\bibitem{FGS} Z.~F\"uredi, A.~Gy\'arf\'as and G.~Simonyi, Connected matchings and Hadwiger's conjecture,
+\emph{Combin. Probab. Comput.} \textbf{14} (2005), 435--438.
+\bibitem{Had} H.~Hadwiger, \"Uber eine Klassifikation der Streckenkomplexe, \emph{Vierteljschr. Naturforsch. Ges. Z\"urich}
+\textbf{88} (1943), 133--142.
+\bibitem{KPT} K.~Kawarabayashi, M.~D.~Plummer and B.~Toft, Improvements of the theorem of Duchet and Meyniel on Hadwiger's
+conjecture, \emph{J. Combin. Theory Ser. B} \textbf{95} (2005), 152--167.
+\bibitem{KWY} K.~Kawarabayashi, D.~R.~Wood and J.~H.~Yip, Independence number and odd dominating models,
+arXiv:2611.11205v2 (10 November 2026).
+\bibitem{OAIH} OpenAI, A counterexample to Hadwiger's conjecture, preprint, 23 September 2026, repository
+\texttt{openai/math}, \texttt{preprints/A-counterexample-to-Hadwigers-conjecture-September-23-2026}.
+\bibitem{OAIC} OpenAI, A counterexample to the Colin de Verdi\`ere chromatic conjecture, preprint, 23 September 2026, same repository.
+\bibitem{OAIL} OpenAI, Lean library of the \texttt{openai/math} repository, commit \texttt{3344da59991ed94f9ba711217b29c1d760badfa6}, modules
+\texttt{OAI.Combinatorics.HadwigerCounterexample}; scope file \texttt{lean/docs/157.md}.
+\bibitem{PST} M.~D.~Plummer, M.~Stiebitz and B.~Toft, On a special case of Hadwiger's conjecture, \emph{Discuss. Math. Graph
+Theory} \textbf{23} (2003), 333--363.
+\bibitem{Sey} P.~Seymour, Hadwiger's conjecture, in \emph{Open Problems in Mathematics} (J.~F.~Nash Jr.\ and M.~Th.~Rassias,
+eds.), Springer, 2016, 417--437.
+\bibitem{Yip} J.~H.~Yip, Dense matchings of linear size in graphs with independence number 2, arXiv:2512.01401 (2025).
+\end{thebibliography}
+
+\end{document}

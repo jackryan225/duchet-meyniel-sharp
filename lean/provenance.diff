@@ -1,0 +1,325 @@
+# Provenance of the four new modules (documentation only; this is NOT a patch to apply).
+# Left side: openai/math at commit 3344da59991ed94f9ba711217b29c1d760badfa6 (Apache License 2.0), folder lean/.
+# Right side: the new modules of this repository, as shipped.
+# 1-3: whole files. 4: only the theorem exists_graphs (OpenAI Main.lean lines 64-97) against
+#      exists_graphs_div (our Main.lean lines 23-54); the rest of our Main.lean is new.
+
+--- a/OAI/Combinatorics/HadwigerCounterexample/ParameterExistence.lean
++++ b/OAI/Combinatorics/HadwigerScaled/ScaledParameters.lean
+@@ -1,8 +1,9 @@
+-import OAI.Combinatorics.HadwigerCounterexample.AnalyticParameters
++import OAI.Combinatorics.HadwigerCounterexample.ParameterExistence
+ 
+ namespace OAI
+ 
+-/-! # Parameter Existence -/
++/-! # Parameter Existence with an arbitrary marginal cap.
++Copied from OpenAI ParameterExistence.lean; the only change: `bp 1000` becomes a parameter `c`. -/
+ 
+ noncomputable section
+ namespace HadwigerCounterexample
+@@ -10,11 +11,10 @@
+ open scoped BigOperators Topology
+ open StatusAnalysis StatusAnalysis.Station
+ 
+-def birthG : ℕ := 10^9+1
+-structure Ribbon (b : PreparationParameters) : Prop where
++structure RibbonAt (c : ℝ) (b : PreparationParameters) : Prop where
+   life : b.allows
+   hd : b.D=4000*birthG
+-  mercury : b.L=bp 1000
++  mercury : b.L=bp c
+   rain : (b.D:ℝ)+b.ζ ≤ (b.ζ-b.ζ/4)*b.e
+   hk : b.k≤ b.d
+   beam : b.spJoint+1 ≤ 0.49*b.k
+@@ -22,14 +22,14 @@
+   size : frameBills birthG b.pins+1000 ≤ b.B
+   dust : 2*b.ζ ≤0.004∧2*b.ζ*(56*((birthG-1:ℕ):ℝ))≤0.004
+ 
+-theorem floor_supply (x : ℝ) (y : ℝ) (hy : 0<y) : ∃ k : ℕ,x≤ y*k := by
++private theorem floor_supply' (x : ℝ) (y : ℝ) (hy : 0<y) : ∃ k : ℕ,x≤ y*k := by
+   obtain ⟨i,hi⟩ := ((tendsto_natCast_atTop_atTop (R:=ℝ)).eventually
+     (eventually_ge_atTop (x/y))).exists
+   refine ⟨i,?_⟩
+   rw [mul_comm]; exact (div_le_iff₀ hy).mp hi
+ 
+ set_option maxHeartbeats 1400000 in
+-theorem seed_ribbon : ∃ b : PreparationParameters, Ribbon b := by
++theorem seed_ribbon_at (c : ℝ) : ∃ b : PreparationParameters, RibbonAt c b := by
+   classical
+   let x : ℝ := 56*((birthG-1:ℕ):ℝ)
+   let ζ := 1/(1000*x)
+@@ -39,12 +39,12 @@
+     exact ⟨by positivity,(div_le_iff₀ (by positivity)).mpr (by linarith)⟩
+   have hz : 0<ζ-ζ/4:=by linarith only [hq.1]
+   let D:=4000*birthG
+-  obtain ⟨e,he⟩:=floor_supply ((D:ℝ)+ζ) _ hz
+-  obtain ⟨k,hk⟩:=floor_supply ((D:ℝ)+1+1) 0.49 (by norm_num)
++  obtain ⟨e,he⟩:=floor_supply' ((D:ℝ)+ζ) _ hz
++  obtain ⟨k,hk⟩:=floor_supply' ((D:ℝ)+1+1) 0.49 (by norm_num)
+   let d:= (2*e+2)*4*k
+   let u:=10*(e+d+1)
+-  obtain ⟨r,hr⟩:=floor_supply ((D:ℝ)+e+2+u+ζ) _ hz
+-  let b : PreparationParameters:=⟨D,bp 1000,d,e,r,u,k,ζ,
++  obtain ⟨r,hr⟩:=floor_supply' ((D:ℝ)+e+2+u+ζ) _ hz
++  let b : PreparationParameters:=⟨D,bp c,d,e,r,u,k,ζ,
+       10*(frameBills birthG (3*e+r)+10000*birthG+1)⟩
+   refine ⟨b,⟨⟨hq.1, hq.2.trans_lt (by norm_num), (bp_pos _).le, hr⟩, rfl,rfl,he,?_,hk,?_,?_,?_⟩⟩
+   · change k ≤ d; unfold d; nlinarith
+@@ -113,10 +113,10 @@
+   exact ⟨b,hb',hb''⟩
+ 
+ set_option maxHeartbeats 240000 in
+-theorem exists_parameters : ∃ (p : Shape) (b : PreparationParameters) (M r : ℕ),AnalyticParameters p M b r ∧
+-    p.g=birthG ∧ b.D=4000*p.g ∧ b.L=bp 1000 := by
++theorem exists_parameters_at (c : ℝ) : ∃ (p : Shape) (b : PreparationParameters) (M r : ℕ),AnalyticParameters p M b r ∧
++    p.g=birthG ∧ b.D=4000*p.g ∧ b.L=bp c := by
+   classical
+-  obtain ⟨t,ht⟩:=seed_ribbon
++  obtain ⟨t,ht⟩:=seed_ribbon_at c
+   let K:=t.pins; let g:=birthG
+   have hg : 3 ≤ g := by norm_num [g,birthG]
+   have hx : Odd g := by
+--- a/OAI/Combinatorics/HadwigerCounterexample/FiniteGraphTransfer.lean
++++ b/OAI/Combinatorics/HadwigerScaled/ScaledTransfer.lean
+@@ -5,7 +5,8 @@
+ 
+ namespace OAI
+ 
+-/-! # Finite Graph Transfer -/
++/-! # Finite graph transfer at threshold m/Q.
++Copied from OpenAI FiniteGraphTransfer.lean (private helpers verbatim); `transfer_div` generalizes `transfer`. -/
+ 
+ noncomputable section
+ 
+@@ -120,20 +121,19 @@
+ 
+ /-- Finite transfer with an explicit error term. If T denotes the terminal count
+ bound, it suffices that
+-T*(2^m*(2/M)^k + m^(2*k)*(1/D)^k) < 1.
+-The rate version just instantiates these inequalities. -/
+-theorem transfer [Fintype A] [Nonempty A] (H : Holes A) {μ : Wgt A} (hμ : IsLaw μ)
++T*(2^m*(2/M)^k + m^(2*k)*(1/D)^k) < 1, now with 2Qk <= m+Q and conclusion cm < m/Q. -/
++theorem transfer_div [Fintype A] [Nonempty A] (H : Holes A) {μ : Wgt A} (hμ : IsLaw μ)
+     {M D ε : ℝ} (hM : 0 < M) (hD : 0 < D) (hε : 0 < ε)
+     (hsat : ∀ w : Wgt (A × A), IsLaw w → pairCaps μ M D w → carried w H.unit →
+       ε ≤ pr (pairW w w) (fun x => H.conflict x.1 x.2))
+     {L m k : ℕ} (hL : Real.log (Fintype.card (A × A)) < L * (ε * Real.log 2))
+-    (hk : 200*k < m+200)
++    {Q : ℕ} (hQ : 0 < Q) (hk : 2*Q*k ≤ m+Q)
+     (herr :
+       ((Fintype.card (A × A) : ℝ) + 1)^L *
+         (2^m * (2/M)^k + (m:ℝ)^(k+k) * D⁻¹^k) < 1) :
+     ∃ x : Fin m → A,
+       (H.graph x).indepNum ≤ 2 ∧
+-      (connectedMatchingNumber (H.graph x) : ℚ) < (m : ℚ)/100 := by
++      (connectedMatchingNumber (H.graph x) : ℚ) < (m : ℚ)/Q := by
+   classical
+   let R := univ.filter H.unit
+   let O := {w : Wgt (A × A) | IsLaw w} ∩ {w | pairCaps μ M D w}
+@@ -191,13 +191,18 @@
+     obtain ⟨j,_,rfl⟩ := mem_image.mp hw
+     exact he₂ i j
+   obtain ⟨r,hr,g⟩ := hCC I hIR hI
+-  have ht : m ≤ t * 100 := by
+-    change (m:ℚ)/100 ≤ (t:ℚ) at hn
+-    have h : (m:ℚ) ≤ (t:ℚ)*100 := by linarith
++  have ht : m ≤ t * Q := by
++    change (m:ℚ)/Q ≤ (t:ℚ) at hn
++    have hq : (0:ℚ) < Q := by exact_mod_cast hQ
++    have h : (m:ℚ) ≤ (t:ℚ)*Q := by rwa [div_le_iff₀ hq] at hn
+     exact_mod_cast h
++  -- Q*(k+k) ≤ m+Q ≤ Q*t+Q = Q*(t+1), hence k+k ≤ t+1
++  have hkt : k + k ≤ t + 1 := by
++    have h2 : Q*(k+k) ≤ Q*(t+1) := by nlinarith
++    exact Nat.le_of_mul_le_mul_left h2 hQ
+   apply hx
+   let r' : C := ⟨r,hr⟩
+-  refine ⟨r', many_bad (S r') (E r') (by omega) he fun i =>
++  refine ⟨r', many_bad (S r') (E r') hkt he fun i =>
+     hcover r' (f i) (g (mem_image_of_mem f (mem_univ i)))⟩
+ end HadwigerCounterexample
+ 
+--- a/OAI/Combinatorics/HadwigerCounterexample/ExponentialGraphTransfer.lean
++++ b/OAI/Combinatorics/HadwigerScaled/ScaledExponential.lean
+@@ -1,51 +1,44 @@
+-import OAI.Combinatorics.HadwigerCounterexample.FiniteGraphTransfer
+-import OAI.Combinatorics.HadwigerCounterexample.ExponentialRates
++import OAI.Combinatorics.HadwigerScaled.ScaledTransfer
++import OAI.Combinatorics.HadwigerCounterexample.ExponentialGraphTransfer
+ 
+ namespace OAI
+ 
+-/-! # Exponential Graph Transfer -/
++/-! # Exponential graph transfer at threshold m/Q.
+ 
++Generalizes OpenAI `transfer_scales` (ExponentialGraphTransfer.lean): marginal cap
++`bp (12*Q+1)` instead of `bp 1000`, conclusion `cm < m/Q` instead of `m/100`.
++Choice: k = (m+Q)/(2Q), so 2Qk ≤ m+Q and m-Q < 2Qk; with m ≥ 2Q this gives m ≤ 4Qk.
++Exponent checks (y = g N, m = 2^(1000 y)):
++  set term : m + m + (1 - (12Q+1)) k ≤ -m   ⇔ 12Qk ≥ 3m  ⇐ m ≤ 4Qk;
++  pair term: m + 2000 y k - 4000 y k ≤ -m   ⇔ 1000 y k ≥ m ⇐ m ≤ 4Qk and y ≥ N ≥ Q.
++-/
++
+ noncomputable section
+ namespace HadwigerCounterexample
+ open HadwigerMatching Real Filter
+ 
+-def ord (g N : ℕ) := (2:ℕ)^(1000*g*N)
+-theorem cast_ord (g N : ℕ) : ((ord g N : ℕ):ℝ) = bp (1000*g*N) := by
+-  unfold ord
+-  have h := bp_nat (1000*g*N)
+-  push_cast at *
+-  exact h.symm
+-
+-theorem tendsto_ord {g : ℕ} (hg : 0 < g) : Tendsto (ord g) atTop atTop := by
+-  have hl : Tendsto (fun n : ℕ => bp (1000*g*n)) atTop atTop :=
+-    (bp_tendsto (show (0:ℝ)<1000*g by positivity)).comp tendsto_natCast_atTop_atTop
+-  rw [tendsto_atTop]
+-  intro b
+-  filter_upwards [hl.eventually (eventually_ge_atTop (b:ℝ))] with i hi
+-  change _ ≤ bp _ at hi
+-  rw [← cast_ord] at hi
+-  exact_mod_cast hi
+-
+-/-- Raw supersaturation ⇒ existence for the sampled order. Takes any fixed
+-polynomial bit-count bound of degree two for the raw unit space. In particular
+-the eventual N-bound is independent of every law and graph. -/
+-theorem transfer_scales {g : ℕ} (hg : 0 < g) {B : ℝ} (hB : 0 ≤ B) :
++theorem transfer_scales_div {g : ℕ} (hg : 0 < g) {B : ℝ} (hB : 0 ≤ B) {Q : ℕ} (hQ : 0 < Q) :
+     ∀ᶠ N : ℕ in atTop, ∀ (A : Type) [Fintype A] [Nonempty A]
+       (H : Holes A) (μ : Wgt A), IsLaw μ →
+       (Fintype.card (A × A) : ℝ) ≤ bp (B * (N:ℝ)^2) →
+-      (∀ w : Wgt (A × A), IsLaw w → pairCaps μ (bp 1000) (bp (4000*g*N)) w →
++      (∀ w : Wgt (A × A), IsLaw w → pairCaps μ (bp (12*Q+1)) (bp (4000*g*N)) w →
+         carried w H.unit → bp (-100*g*N) ≤ pr (pairW w w) (fun x => H.conflict x.1 x.2)) →
+       ∃ x : Fin (ord g N) → A,
+         (H.graph x).indepNum ≤ 2 ∧
+-        (connectedMatchingNumber (H.graph x) : ℚ) < (ord g N : ℚ)/100 := by
++        (connectedMatchingNumber (H.graph x) : ℚ) < (ord g N : ℚ)/Q := by
+   have hg' : (1:ℝ) ≤ g := by exact_mod_cast hg
+   have hh := bp_poly_dom_nat (a:=100*g) (by positivity) (B+1) 2
+-  filter_upwards [hh, eventually_ge_atTop 1,
+-    (tendsto_ord hg).eventually (eventually_ge_atTop 2)] with N hN hN' hord
++  filter_upwards [hh, eventually_ge_atTop (max 1 Q),
++    (tendsto_ord hg).eventually (eventually_ge_atTop (2*Q+2))] with N hN hN' hord
+   intro A _ _ H μ hμ hA hs
+   let y : ℝ := g * (N:ℝ)
+-  have hNr : (1:ℝ) ≤ N := by exact_mod_cast hN'
++  have hN1 : 1 ≤ N := le_trans (le_max_left _ _) hN'
++  have hNQ : Q ≤ N := le_trans (le_max_right _ _) hN'
++  have hNr : (1:ℝ) ≤ N := by exact_mod_cast hN1
+   have hy : 1 ≤ y := by unfold y; nlinarith
++  have hyQ : (Q:ℝ) ≤ y := by
++    have : (Q:ℝ) ≤ N := by exact_mod_cast hNQ
++    unfold y; nlinarith
+   let m := ord g N
+   let L : ℕ := 2^(200*g*N)
+   have hm : (m:ℝ) = bp (1000*y) := by rw [cast_ord]; unfold y; ring_nf
+@@ -62,8 +55,15 @@
+     have hh : (B+1)*(N:ℝ)^2 < bp (100*y) := by simpa only [y, mul_assoc] using hN
+     unfold z
+     nlinarith only [hh,hNr]
+-  let k := (m+199)/200
+-  refine transfer H hμ (bp_pos _) (bp_pos _) (bp_pos _) hs (L:=L) (k:=k) ?_ ?_ ?_
++  let k := (m+Q)/(2*Q)
++  have h2Q : 0 < 2*Q := by omega
++  have hk1 : 2*Q*k ≤ m+Q := Nat.mul_div_le (m+Q) (2*Q)
++  have hk2 : m + Q < 2*Q*k + 2*Q := by
++    have h1 := Nat.div_add_mod (m+Q) (2*Q)
++    have h2 := Nat.mod_lt (m+Q) h2Q
++    change 2*Q*k + (m+Q) % (2*Q) = m+Q at h1
++    omega
++  refine transfer_div H hμ (bp_pos _) (bp_pos _) (bp_pos _) hs (L:=L) (k:=k) ?_ hQ hk1 ?_
+   · have hi : log (Fintype.card (A × A) : ℝ) ≤ z * Real.log 2 := by
+       rw [← log_bp]
+       exact Real.log_le_log (by exact_mod_cast Fintype.card_pos) hA
+@@ -73,12 +73,14 @@
+          _ = _ := by
+            rw [hl,← mul_assoc (bp (200 * y)),← bp_add]
+            unfold y; ring_nf
+-  · change 200*((m+199)/200) < m+200
+-    omega
+-  · have hk : (m:ℝ) ≤ 200*k := by
+-      have hk : m ≤ 200*k := by unfold k; omega
+-      exact_mod_cast hk
+-    have hm' : (2:ℝ) ≤ m := by exact_mod_cast hord
++  · -- m ≥ 2Q+2, so m - Q < 2Qk gives m ≤ 4Qk
++    have hmQ : 2*Q+2 ≤ m := hord
++    have hk : (m:ℝ) ≤ 4*Q*k := by
++      have hk' : m ≤ 4*Q*k := by nlinarith
++      exact_mod_cast hk'
++    have hm' : (2:ℝ) ≤ m := by
++      have : 2 ≤ m := by omega
++      exact_mod_cast this
+     let a := (Fintype.card (A × A):ℝ)+1
+     have ha : a ≤ bp (z+1) := by
+       rw [bp_add,bp_one]
+@@ -97,29 +99,29 @@
+                mul_le_mul_of_nonneg_right hb.le (bp_pos _).le
+              _ ≤ bp (1000*y) := by rw [← bp_add]; apply bp_le; linarith only [hy])
+     let d := bp (4000*(g:ℝ)*(N:ℝ))
+-    have ha1 : bp (m:ℝ) * ((2:ℝ)^m * (2/bp 1000)^k) ≤ bp (-(m:ℝ)) := by
+-      rw [← bp_nat, show 2/bp 1000 = bp (1-1000) by simp only [bp_sub,bp_one],
++    have ha1 : bp (m:ℝ) * ((2:ℝ)^m * (2/bp (12*Q+1))^k) ≤ bp (-(m:ℝ)) := by
++      rw [← bp_nat, show 2/bp (12*Q+1) = bp (1-(12*Q+1)) by simp only [bp_sub,bp_one],
+         ← bp_mul_nat, ← bp_add, ← bp_add]
+       apply bp_le
+-      linarith
++      -- m + m + (1-(12Q+1)) k ≤ -m  ⇔  12 Q k ≥ 3 m
++      nlinarith
+     have ha2 : bp (m:ℝ) * ((m:ℝ)^(k+k) * (d⁻¹)^k) ≤ bp (-(m:ℝ)) := by
+-
+       have he : (m:ℝ)^(k+k) = bp ((1000*y)*(k+k:ℕ)) := by
+         rw [hm,bp_mul_nat]
+       rw [he, show d⁻¹ = bp (-(4000*y)) by simp only [bp_neg,d,y,mul_assoc],
+         ← bp_mul_nat, ← bp_add, ← bp_add]
+       apply bp_le
+       push_cast
+-      have hx : (k:ℝ) ≤ y*k := by
+-        have : 0 ≤ (k:ℝ) := Nat.cast_nonneg _
+-        nlinarith
+-      linarith
++      -- need 1000 y k ≥ m: from m ≤ 4Qk and Q ≤ y
++      have hk0 : 0 ≤ (k:ℝ) := Nat.cast_nonneg _
++      have hx : (m:ℝ) ≤ 4*y*k := by nlinarith
++      nlinarith
+     have hx : bp (-(m:ℝ)) < 1/2 := by
+       rw [show (1:ℝ)/2 = bp (-1) by simp only [one_div,bp_neg,bp_one]]
+       exact bp_lt (by linarith only [hm'])
+-    change a^L * (2^m * (2/bp 1000)^k + (m:ℝ)^(k+k) * d⁻¹^k) < 1
++    change a^L * (2^m * (2/bp (12*Q+1))^k + (m:ℝ)^(k+k) * d⁻¹^k) < 1
+     refine lt_of_le_of_lt (mul_le_mul_of_nonneg_right hal (by
+-      have h := bp_pos 1000
++      have h := bp_pos (12*(Q:ℝ)+1)
+       have h' : 0 < d := bp_pos _
+       positivity)) ?_
+     linarith only [ha1,ha2,hx]
+--- a/OAI/Combinatorics/HadwigerCounterexample/Main.lean (lines 64-97)
++++ b/OAI/Combinatorics/HadwigerScaled/Main.lean (lines 23-54)
+@@ -1,20 +1,18 @@
+-/-- Arbitrarily large finite graphs of independence number at most two and
+-touching-matching number less than one hundredth of the number of vertices. -/
+-theorem exists_graphs (M : ℕ) : ∃ m:ℕ, max M 5 ≤ m ∧
++theorem exists_graphs_div {Q : ℕ} (hQ : 0 < Q) (M : ℕ) : ∃ m:ℕ, max M 5 ≤ m ∧
+     ∃ G : SimpleGraph (Fin m), G.indepNum ≤ 2 ∧
+-      (connectedMatchingNumber G:ℚ) < (m:ℚ)/100 := by
++      (connectedMatchingNumber G:ℚ) < (m:ℚ)/Q := by
+   classical
+-  obtain ⟨p,b,k,r,h,hg,hd,he⟩:= exists_parameters
++  obtain ⟨p,b,k,r,h,hg,hd,he⟩:= exists_parameters_at (12*(Q:ℝ)+1)
+   have ht:=h.enter.first
+   let B:=4*num (Comp p.g)
+   let Y (n:ℕ):=k*n
+   have hy := (trend_sizes atTop le_rfl ht.hM).1
+   have hp : 0 < p.g := lt_of_lt_of_le (by norm_num) ht.hG
+   have hs : ∀ᶠ n:ℕ in atTop, ∃ m:ℕ, max M 5 ≤ m ∧
+-      ∃ G : SimpleGraph (Fin m), G.indepNum ≤ 2 ∧ (connectedMatchingNumber G:ℚ)<(m:ℚ)/100 := by
++      ∃ G : SimpleGraph (Fin m), G.indepNum ≤ 2 ∧ (connectedMatchingNumber G:ℚ)<(m:ℚ)/Q := by
+     filter_upwards [eventual_conflict_lower_bound h,ht.wrap,goodMixers p b.pins r (by linarith only [ht.hG])
+       ht.hJ (by have hi:=h.profiles; omega) h.bigJ,hy.eventually
+-      (transfer_scales hp (show 0≤B from mul_nonneg (by norm_num) (Nat.cast_nonneg _))),
++      (transfer_scales_div hp (show 0≤B from mul_nonneg (by norm_num) (Nat.cast_nonneg _)) hQ),
+       ((tendsto_ord hp).comp hy).eventually (eventually_ge_atTop (max M 5))] with n hn ht hl hq hN
+     let N:=Y n
+     obtain ⟨m,hm,he'⟩:=hl

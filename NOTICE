@@ -1,0 +1,38 @@
+This repository contains Lean files that are derived from OpenAI's Lean library:
+github.com/openai/math, commit 3344da59991ed94f9ba711217b29c1d760badfa6, folder lean/.
+That library is distributed under the Apache License, Version 2.0. A copy of the license is in the file LICENSE.
+
+Files of this repository that contain code copied from that library, and what was changed
+(Apache License 2.0, section 4(b)):
+
+- lean/OAI/Combinatorics/HadwigerScaled/ScaledParameters.lean
+  Copied from lean/OAI/Combinatorics/HadwigerCounterexample/ParameterExistence.lean.
+  Changed: the fixed marginal cap bp 1000 is a parameter c. The names Ribbon, seed_ribbon,
+  exists_parameters and floor_supply became RibbonAt, seed_ribbon_at, exists_parameters_at and the
+  private floor_supply'. The definition birthG is imported, not repeated.
+- lean/OAI/Combinatorics/HadwigerScaled/ScaledTransfer.lean
+  Copied from lean/OAI/Combinatorics/HadwigerCounterexample/FiniteGraphTransfer.lean.
+  Changed: the theorem transfer became transfer_div, with the threshold m/Q in place of m/100.
+  The private helper lemmas are unchanged.
+- lean/OAI/Combinatorics/HadwigerScaled/ScaledExponential.lean
+  Adapted from lean/OAI/Combinatorics/HadwigerCounterexample/ExponentialGraphTransfer.lean.
+  Changed: the theorem transfer_scales became transfer_scales_div, with the cap bp (12*Q+1) in place of
+  bp 1000 and the threshold m/Q in place of m/100. The definitions ord, cast_ord and tendsto_ord are
+  imported, not repeated.
+- lean/OAI/Combinatorics/HadwigerScaled/Main.lean
+  The theorem exists_graphs_div is adapted from exists_graphs in
+  lean/OAI/Combinatorics/HadwigerCounterexample/Main.lean. The other four theorems are new.
+- Challenge/Statement.lean
+  The definitions IsTouchingMatching, connectedMatchingNumber, HasCliqueMinor and hadwigerNumber are
+  copied unchanged from lean/ComparatorChallenges/HadwigerCounterexample.lean. The three theorem
+  statements are new.
+
+The exact changes are in lean/provenance.diff. They were made on 25 November 2026.
+
+The 288 unchanged OpenAI files that the proof imports are not included in this repository.
+lean/assemble.sh copies them from a checkout of openai/math at the commit above and checks them
+against lean/OAI-SHA256SUMS.
+
+The files listed above are not OpenAI's work. OpenAI has not reviewed or endorsed them. They use the
+Lean namespace OAI and the folder OAI/Combinatorics/ only so that they compile next to OpenAI's
+library and can use its names.

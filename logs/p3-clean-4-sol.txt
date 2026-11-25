@@ -1,0 +1,138 @@
+def OAI.HadwigerMatching.IsTouchingMatching.{u} : {V : Type u} →
+  (G : SimpleGraph.{u} V) → (M : Finset.{u} (Finset.{u} V)) → Prop :=
+fun {V : Type u} (G : SimpleGraph.{u} V) (M : Finset.{u} (Finset.{u} V)) =>
+  And
+    (∀ (e : Finset.{u} V),
+      @Membership.mem.{u, u} (Finset.{u} V) (Finset.{u} (Finset.{u} V))
+          (@SetLike.instMembership.{u, u} (Finset.{u} (Finset.{u} V)) (Finset.{u} V)
+            (@Finset.instSetLike.{u} (Finset.{u} V)))
+          M e →
+        And (@Eq.{1} Nat (@Finset.card.{u} V e) (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2))))
+          (@SimpleGraph.IsClique.{u} V G (@SetLike.coe.{u, u} (Finset.{u} V) V (@Finset.instSetLike.{u} V) e)))
+    (And
+      (∀ (e : Finset.{u} V),
+        @Membership.mem.{u, u} (Finset.{u} V) (Finset.{u} (Finset.{u} V))
+            (@SetLike.instMembership.{u, u} (Finset.{u} (Finset.{u} V)) (Finset.{u} V)
+              (@Finset.instSetLike.{u} (Finset.{u} V)))
+            M e →
+          ∀ (f : Finset.{u} V),
+            @Membership.mem.{u, u} (Finset.{u} V) (Finset.{u} (Finset.{u} V))
+                (@SetLike.instMembership.{u, u} (Finset.{u} (Finset.{u} V)) (Finset.{u} V)
+                  (@Finset.instSetLike.{u} (Finset.{u} V)))
+                M f →
+              @Ne.{u + 1} (Finset.{u} V) e f →
+                @Disjoint.{u} (Finset.{u} V) (@Finset.instPartialOrder.{u} V) (@Finset.instOrderBot.{u} V) e f)
+      (∀ (e : Finset.{u} V),
+        @Membership.mem.{u, u} (Finset.{u} V) (Finset.{u} (Finset.{u} V))
+            (@SetLike.instMembership.{u, u} (Finset.{u} (Finset.{u} V)) (Finset.{u} V)
+              (@Finset.instSetLike.{u} (Finset.{u} V)))
+            M e →
+          ∀ (f : Finset.{u} V),
+            @Membership.mem.{u, u} (Finset.{u} V) (Finset.{u} (Finset.{u} V))
+                (@SetLike.instMembership.{u, u} (Finset.{u} (Finset.{u} V)) (Finset.{u} V)
+                  (@Finset.instSetLike.{u} (Finset.{u} V)))
+                M f →
+              @Ne.{u + 1} (Finset.{u} V) e f →
+                @Exists.{u + 1} V fun (v : V) =>
+                  And
+                    (@Membership.mem.{u, u} V (Finset.{u} V)
+                      (@SetLike.instMembership.{u, u} (Finset.{u} V) V (@Finset.instSetLike.{u} V)) e v)
+                    (@Exists.{u + 1} V fun (w : V) =>
+                      And
+                        (@Membership.mem.{u, u} V (Finset.{u} V)
+                          (@SetLike.instMembership.{u, u} (Finset.{u} V) V (@Finset.instSetLike.{u} V)) f w)
+                        (@SimpleGraph.Adj.{u} V G v w))))
+def OAI.HadwigerMatching.connectedMatchingNumber.{u} : {V : Type u} → (G : SimpleGraph.{u} V) → Nat :=
+fun {V : Type u} (G : SimpleGraph.{u} V) =>
+  @SupSet.sSup.{0} Nat Nat.instSupSet
+    (@Set.ofPred.{0} Nat fun (n : Nat) =>
+      @Exists.{u + 1} (Finset.{u} (Finset.{u} V)) fun (M : Finset.{u} (Finset.{u} V)) =>
+        And (@OAI.HadwigerMatching.IsTouchingMatching.{u} V G M) (@Eq.{1} Nat (@Finset.card.{u} (Finset.{u} V) M) n))
+def OAI.LinearListHadwiger.HasCliqueMinor : {V : Type} → (G : SimpleGraph.{0} V) → (t : Nat) → Prop :=
+fun {V : Type} (G : SimpleGraph.{0} V) (t : Nat) =>
+  @Exists.{1} (Fin t → Set.{0} V) fun (B : Fin t → Set.{0} V) =>
+    And (∀ (i : Fin t), @SimpleGraph.Connected.{0} (@Set.Elem.{0} V (B i)) (@SimpleGraph.induce.{0} V (B i) G))
+      (And
+        (∀ (i j : Fin t),
+          @Ne.{1} (Fin t) i j →
+            @Disjoint.{0} (Set.{0} V)
+              (@CompletePartialOrder.toPartialOrder.{0} (Set.{0} V)
+                (@CompleteLattice.toCompletePartialOrder.{0} (Set.{0} V)
+                  (@CompleteBooleanAlgebra.toCompleteLattice.{0} (Set.{0} V)
+                    (@CompleteAtomicBooleanAlgebra.toCompleteBooleanAlgebra.{0} (Set.{0} V)
+                      (@Set.instCompleteAtomicBooleanAlgebra.{0} V)))))
+              (@CompletePartialOrder.toOrderBot.{0} (Set.{0} V)
+                (@CompleteLattice.toCompletePartialOrder.{0} (Set.{0} V)
+                  (@CompleteBooleanAlgebra.toCompleteLattice.{0} (Set.{0} V)
+                    (@CompleteAtomicBooleanAlgebra.toCompleteBooleanAlgebra.{0} (Set.{0} V)
+                      (@Set.instCompleteAtomicBooleanAlgebra.{0} V)))))
+              (B i) (B j))
+        (∀ (i j : Fin t),
+          @Ne.{1} (Fin t) i j →
+            @Exists.{1} V fun (v : V) =>
+              And (@Membership.mem.{0, 0} V (Set.{0} V) (@Set.instMembership.{0} V) (B i) v)
+                (@Exists.{1} V fun (w : V) =>
+                  And (@Membership.mem.{0, 0} V (Set.{0} V) (@Set.instMembership.{0} V) (B j) w)
+                    (@SimpleGraph.Adj.{0} V G v w))))
+def OAI.LinearListHadwiger.hadwigerNumber : {V : Type} → (G : SimpleGraph.{0} V) → Nat :=
+fun {V : Type} (G : SimpleGraph.{0} V) =>
+  @SupSet.sSup.{0} Nat Nat.instSupSet
+    (@Set.ofPred.{0} Nat fun (t : Nat) => @OAI.LinearListHadwiger.HasCliqueMinor V G t)
+OAI.HadwigerCounterexample.exists_small_hadwiger : ∀ (β : Rat)
+  (hβ : @LT.lt.{0} Rat Rat.instLT (@OfNat.ofNat.{0} Rat (nat_lit 0) (@Rat.instOfNat (nat_lit 0))) β) (M : Nat),
+  @Exists.{1} Nat fun (m : Nat) =>
+    And (@LE.le.{0} Nat instLENat M m)
+      (@Exists.{1} (SimpleGraph.{0} (Fin m)) fun (G : SimpleGraph.{0} (Fin m)) =>
+        And
+          (@LE.le.{0} Nat instLENat (@SimpleGraph.indepNum.{0} (Fin m) G)
+            (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2))))
+          (And
+            (@LT.lt.{0} Rat Rat.instLT
+              (@Nat.cast.{0} Rat Rat.instNatCast (@OAI.HadwigerMatching.connectedMatchingNumber.{0} (Fin m) G))
+              (@HMul.hMul.{0, 0, 0} Rat Rat Rat (@instHMul.{0} Rat Rat.instMul) β
+                (@Nat.cast.{0} Rat Rat.instNatCast m)))
+            (@LT.lt.{0} Rat Rat.instLT
+              (@Nat.cast.{0} Rat Rat.instNatCast (@OAI.LinearListHadwiger.hadwigerNumber (Fin m) G))
+              (@HAdd.hAdd.{0, 0, 0} Rat Rat Rat (@instHAdd.{0} Rat Rat.instAdd)
+                (@HMul.hMul.{0, 0, 0} Rat Rat Rat (@instHMul.{0} Rat Rat.instMul)
+                  (@HAdd.hAdd.{0, 0, 0} Rat Rat Rat (@instHAdd.{0} Rat Rat.instAdd)
+                    (@HDiv.hDiv.{0, 0, 0} Rat Rat Rat (@instHDiv.{0} Rat Rat.instDiv)
+                      (@OfNat.ofNat.{0} Rat (nat_lit 1) (@Rat.instOfNat (nat_lit 1)))
+                      (@OfNat.ofNat.{0} Rat (nat_lit 3) (@Rat.instOfNat (nat_lit 3))))
+                    (@HMul.hMul.{0, 0, 0} Rat Rat Rat (@instHMul.{0} Rat Rat.instMul)
+                      (@OfNat.ofNat.{0} Rat (nat_lit 2) (@Rat.instOfNat (nat_lit 2))) β))
+                  (@Nat.cast.{0} Rat Rat.instNatCast m))
+                (@HDiv.hDiv.{0, 0, 0} Rat Rat Rat (@instHDiv.{0} Rat Rat.instDiv)
+                  (@OfNat.ofNat.{0} Rat (nat_lit 2) (@Rat.instOfNat (nat_lit 2)))
+                  (@OfNat.ofNat.{0} Rat (nat_lit 3) (@Rat.instOfNat (nat_lit 3))))))))
+OAI.HadwigerCounterexample.not_linear_cm : Not
+  (@Exists.{1} Rat fun (c : Rat) =>
+    And (@LT.lt.{0} Rat Rat.instLT (@OfNat.ofNat.{0} Rat (nat_lit 0) (@Rat.instOfNat (nat_lit 0))) c)
+      (@Exists.{1} Nat fun (M : Nat) =>
+        ∀ (m : Nat),
+          @GE.ge.{0} Nat instLENat m M →
+            ∀ (G : SimpleGraph.{0} (Fin m)),
+              @LE.le.{0} Nat instLENat (@SimpleGraph.indepNum.{0} (Fin m) G)
+                  (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2))) →
+                @LE.le.{0} Rat Rat.instLE
+                  (@HMul.hMul.{0, 0, 0} Rat Rat Rat (@instHMul.{0} Rat Rat.instMul) c
+                    (@Nat.cast.{0} Rat Rat.instNatCast m))
+                  (@Nat.cast.{0} Rat Rat.instNatCast (@OAI.HadwigerMatching.connectedMatchingNumber.{0} (Fin m) G))))
+OAI.HadwigerCounterexample.not_hc_eps : Not
+  (@Exists.{1} Rat fun (ε : Rat) =>
+    And (@LT.lt.{0} Rat Rat.instLT (@OfNat.ofNat.{0} Rat (nat_lit 0) (@Rat.instOfNat (nat_lit 0))) ε)
+      (@Exists.{1} Nat fun (M : Nat) =>
+        ∀ (m : Nat),
+          @GE.ge.{0} Nat instLENat m M →
+            ∀ (G : SimpleGraph.{0} (Fin m)),
+              @LE.le.{0} Nat instLENat (@SimpleGraph.indepNum.{0} (Fin m) G)
+                  (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2))) →
+                @LE.le.{0} Rat Rat.instLE
+                  (@HMul.hMul.{0, 0, 0} Rat Rat Rat (@instHMul.{0} Rat Rat.instMul)
+                    (@HAdd.hAdd.{0, 0, 0} Rat Rat Rat (@instHAdd.{0} Rat Rat.instAdd)
+                      (@HDiv.hDiv.{0, 0, 0} Rat Rat Rat (@instHDiv.{0} Rat Rat.instDiv)
+                        (@OfNat.ofNat.{0} Rat (nat_lit 1) (@Rat.instOfNat (nat_lit 1)))
+                        (@OfNat.ofNat.{0} Rat (nat_lit 3) (@Rat.instOfNat (nat_lit 3))))
+                      ε)
+                    (@Nat.cast.{0} Rat Rat.instNatCast m))
+                  (@Nat.cast.{0} Rat Rat.instNatCast (@OAI.LinearListHadwiger.hadwigerNumber (Fin m) G))))
