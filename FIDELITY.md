@@ -147,6 +147,10 @@ finite graph (`full_matching_minor_proposition`).
   connected matching, so this sentence says exactly cm(G) < βm, which is in Lean. Paper only is the probability estimate
   for the random construction (Lemma 4.3 of the paper: the bound holds with probability 1 - exp(-Ω(m))).
 
+- **Further consequences** (Section 6 of the paper): the inequality 3 h_f(G) ≤ n + 4 cm(G) + 2 and the failure of
+  Conjectures 23 and 24 of Harvey and Wood, the lower bound on cm for the triangle-free process, and three remarks
+  checked by one reader (inflations, dense minors, strongly odd dominating models). All are paper only.
+
 ## 6. What the Lean proof depends on
 
 - Mathlib at commit d13f23b723b8a846827a245b89c10fc7d3f11612 and Lean 4.34.1.

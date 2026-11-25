@@ -128,14 +128,49 @@ OpenAI wrote that their fixed coefficient "leaves the weaker conjecture for smal
   the Palomar registry, vibemathed.com, Zenodo, GitHub, MathOverflow. Such searches cannot be complete. Kawarabayashi, Wood
   and Yip (10 November 2026) still describe the question for 1/3 as open.
 
+## Further consequences (paper proofs, not in Lean)
+
+These are short paper arguments on top of the main theorem. Section 6 of `paper/alpha2-third.tex` gives the proofs.
+
+**Fractional Hadwiger number.** A bramble is a set of connected subgraphs that pairwise share a vertex or are joined by an
+edge. The fractional Hadwiger number h_f(G) is the largest total weight of nonnegative weights on a bramble such that the
+weights of the members through any vertex add up to at most 1 (Harvey and Wood, arXiv:1312.3401; Fox; Pedersen). Every
+graph satisfies h(G) ≤ h_f(G).
+
+- Every graph on n vertices satisfies 3 h_f(G) ≤ n + 4 cm(G) + 2, with equality for complete graphs of odd order.
+- So Conjectures 23 and 24 of Harvey and Wood (χ(G) ≤ h_f(G) and χ_f(G) ≤ h_f(G)) are false. OpenAI's graphs with
+  cm(G) < n/100 already give h_f(G) < 26n/75 + 2/3 < n/2 ≤ χ_f(G). Fox (arXiv:1108.4953, Section 4) had remarked that
+  improving 1/3 for h is equivalent to improving it for h_f, which gives the refutation in qualitative form.
+- With the graphs of this repository, sup χ(G)/h_f(G) = sup χ_f(G)/h_f(G) = 3/2 over nonempty graphs with α(G) ≤ 2, and
+  neither supremum is attained.
+
+**The triangle-free process.** Every graph G on n ≥ 3 vertices with complement F satisfies
+cm(G) ≥ ⌊n/2⌋ - e(F)/(N - 1) - C4(F)/((N - 1)(N - 3)), where N is the least even integer at least n and C4(F) counts the
+4-cycles of F (random pairing). For the complement of the final graph of the triangle-free process this gives
+cm(G) ≥ n/2 - O(√n log^{3/2} n) asymptotically almost surely. This answers Question 4.8 of Costa, Luu, Wood and Yip
+(arXiv:2512.17114; Question 21 in its HTML version) in the positive. The inequality is a short corollary of counts that
+Norin and Seymour and Yip use; the application to the triangle-free process is the new step.
+
+**Three remarks checked by one reader.**
+
+- *Inflations.* For every s ≥ 1 there are arbitrarily large graphs B with α(B) = 2 and h(B) ≥ χ(B) = |V(B)|/2 (even with
+  a dominating clique model) that have a proper inflation, with every vertex replaced by a clique of order s or s + 1, in
+  which h < |V|/2 ≤ χ_f ≤ χ. So Conjecture 1.14 of Costa, Luu, Wood and Yip fails for the properties h ≥ χ and
+  h ≥ |V|/2. Uniform inflations cannot do this.
+- *Dense minors.* There are ε > 0 and infinitely many graphs with α = 2 in which every minor with at least half as many
+  vertices has edge density at most 1 - ε. So the constant 0.98688... of Norin and Seymour cannot be raised to 1.
+- *Strongly odd dominating models.* Every nonempty graph with α(G) ≤ 2 has had_sod(G) ≥ max{⌈|V(G)|/4⌉, ⌈χ(G)/2⌉}, and
+  every graph has had_sod(G) ≤ |V(G)|/4 + ω(G). So the constant 1/4 is sharp for α = 2 (Kawarabayashi, Wood and Yip,
+  arXiv:2611.11205, had the upper example and the lower bound |V(G)|/5).
+
 ## Limits
 
 - The graphs are very large: the proof gives graphs only with 2^(1000·g·N) vertices, where g = 10^9 + 1. There is no
   explicit construction, and no rate at which cm(G)/|V(G)| tends to 0.
 - For each c the proof gives infinitely many orders |V(G)|, not every large order.
-- Lean checks the statements about cm and h. The consequences about χ, ρ, ρ_d and the clique bound |V(G)|/4 are short
-  paper arguments that use published theorems. The paper's estimate of the probability that a random sample works is
-  also paper only.
+- Lean checks the statements about cm and h. The consequences about χ, ρ, ρ_d and the clique bound |V(G)|/4, and all
+  items of the section "Further consequences", are short paper arguments that use published theorems. The paper's
+  estimate of the probability that a random sample works is also paper only.
 - The paper also gives a second proof route through OpenAI's Colin de Verdière paper. That route has no formal proof and
   depends on unrefereed lemmas of that paper.
 - The Lean result is as good as Lean's kernel, Mathlib's definitions and the four copied definitions. `FIDELITY.md`

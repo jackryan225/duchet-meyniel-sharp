@@ -91,6 +91,8 @@ with $\alpha\le2$, so $3/2$ is the exact supremum (Remark~\ref{r:upper}). Theore
 upper half of Corollary~\ref{c:third} and Corollary~\ref{c:conj} are proved in Lean (Section~\ref{s:verify}). The lower
 half of Corollary~\ref{c:third} (Theorem~\ref{t:dm}), Corollary~\ref{c:ratio}, Remark~\ref{r:upper},
 Corollary~\ref{c:kwy} and Remark~\ref{r:cs} are paper arguments on top of the Lean statements and the cited theorems.
+Section~\ref{s:further} adds further paper arguments: the fractional Hadwiger conjectures of Harvey and Wood fail, a question
+of Costa, Luu, Wood and Yip on the triangle-free process has a positive answer, and three remarks checked by one reader.
 
 \medskip\noindent\textbf{Status of the result.} The graphs come from the random construction of OpenAI's counterexample to
 Hadwiger's conjecture \cite{OAIH}, with scaled parameters. That paper proves Theorem~\ref{t:main} for the single value
@@ -350,6 +352,212 @@ Balogh and Kostochka \cite{BK}. So $\alpha=2$ is the case in which the bound of 
 sharp.
 \end{remark}
 
+\section{Further consequences}\label{s:further}
+The results of this section are paper arguments on top of Theorem~\ref{t:main}. They are not formalized in Lean.
+
+\subsection{The fractional Hadwiger number}
+Two subgraphs of $G$ \emph{touch} if they share a vertex or some edge of $G$ joins them. A \emph{bramble} is a set of
+connected subgraphs of $G$ that pairwise touch. A weighting $w$ of a bramble $\mathcal B$ with nonnegative reals is
+\emph{admissible} if $\sum_{X\in\mathcal B,\ v\in V(X)}w(X)\le1$ for every vertex $v$. The \emph{fractional Hadwiger number}
+$h_f(G)$ is the largest total weight $\sum_{X\in\mathcal B}w(X)$ of an admissible weighting of a bramble
+\cite[Sections~3 and 11]{HW}; the same parameter was introduced by Fox \cite{Fox11} and by Pedersen (see \cite[Section~11]{HW}).
+The branch sets of a $K_{h(G)}$ model with weight $1$ show $h(G)\le h_f(G)$. Harvey and Wood
+\cite[Section~12, Conjectures~23 and 24]{HW} conjectured $\chi(G)\le h_f(G)$ and $\chi_f(G)\le h_f(G)$ for every graph $G$.
+
+\begin{proposition}\label{p:hf}
+Every graph $G$ on $n$ vertices satisfies $3h_f(G)\le n+4\cm(G)+2$. Equality holds for complete graphs of odd order.
+\end{proposition}
+
+\begin{proof}
+Fix a bramble $\mathcal B$ with an admissible weighting $w$; we may drop the members of weight $0$. Let $p$, $q$ and $r$ be the
+total weights of the members with one vertex, two vertices and at least three vertices. Summing the vertex constraints gives
+$\sum_X w(X)|V(X)|\le n$, so $p+2q+3r\le n$ and
+\[
+ 3(p+q+r)\le n+2p+q .
+\]
+Two one-vertex members $\{u\}$ and $\{v\}$ touch only if $u=v$ or $uv\in E(G)$. So the set $K$ of vertices $v$ with
+$\{v\}\in\mathcal B$ is a clique; let $k=|K|$. A two-vertex member is connected, so it is an edge. Let $q_K$ be the total
+weight of the edge members that meet $K$. The constraints at the vertices of $K$ give $p+q_K\le k$; since every member weighs
+at most $1$, also $p\le k$. Let $M$ be a maximal set of pairwise disjoint edge members that do not meet $K$. Every edge
+member that does not meet $K$ meets $V(M)$, so the constraints at the $2|M|$ vertices of $V(M)$ give $q-q_K\le2|M|$. Hence
+\[
+ 2p+q=p+(p+q_K)+(q-q_K)\le 2k+2|M| .
+\]
+Now pair the vertices of $K$ into $\lfloor k/2\rfloor$ disjoint edges and add $M$. The result is a connected matching. Indeed
+two edges inside the clique $K$ touch; two edges of $M$ touch because they are members of $\mathcal B$; and a vertex
+$v\in K$ is adjacent to an endpoint of every edge of $M$, because the member $\{v\}$ touches every member and $v$ lies on no
+edge of $M$. So $\lfloor k/2\rfloor+|M|\le\cm(G)$, and with $k\le2\lfloor k/2\rfloor+1$,
+\[
+ 2p+q\le 4\lfloor k/2\rfloor+2+2|M|\le4\cm(G)+2 .
+\]
+Hence $3h(\mathcal B,w)\le n+4\cm(G)+2$, and the inequality follows by maximizing over $(\mathcal B,w)$. For $G=K_n$ with $n$
+odd, $h_f(G)=n$ and $\cm(G)=(n-1)/2$, so both sides equal $3n$.
+\end{proof}
+
+\begin{corollary}\label{c:hf}
+\begin{enumerate}
+\item[(i)] For every $\eps>0$ there are arbitrarily large graphs $G$ with $\alpha(G)\le2$ and
+$h_f(G)<(1/3+\eps)|V(G)|$.
+\item[(ii)] Conjectures~23 and 24 of Harvey and Wood are false. Over nonempty graphs with $\alpha(G)\le2$,
+\[
+ \sup\chi(G)/h_f(G)=\sup\chi_f(G)/h_f(G)=3/2 ,
+\]
+and neither supremum is attained.
+\end{enumerate}
+\end{corollary}
+
+\begin{proof}
+(i) For the graphs of Theorem~\ref{t:main}, Proposition~\ref{p:hf} gives $h_f(G)<(1+4\beta)m/3+2/3$; take $\beta=\eps/2$ and
+$m>2/\eps$.
+
+(ii) A graph with $\alpha(G)\le2$ and $m$ vertices has $\chi(G)\ge\chi_f(G)\ge m/2$, so both conjectures fail as soon as
+$h_f(G)<m/2$. This already happens for OpenAI's graphs: from $\cm(G)<m/100$, Proposition~\ref{p:hf} gives
+$h_f(G)<26m/75+2/3<m/2$ for $m\ge5$. For the value of the suprema, take the graphs of Theorem~\ref{t:main} with
+$\beta\to0$: by (i) and the proof of Corollary~\ref{c:ratio}, $h_f=(1/3+o(1))m$ and $m/2\le\chi_f\le\chi\le(1/2+o(1))m$, so
+both ratios tend to $3/2$. Conversely, $\chi_f(G)\le\chi(G)<\frac32h(G)\le\frac32h_f(G)$ for every nonempty graph with
+$\alpha(G)\le2$ (Remark~\ref{r:upper}), so $3/2$ is not attained.
+\end{proof}
+
+\begin{remark}
+Fox \cite[Section~4]{Fox11} remarks that, for graphs with independence number two, improving the bound $h\ge|V(G)|/3$ to
+$(1/3+\eps)|V(G)|$ is equivalent to the same improvement for $h_f$. With Corollary~\ref{c:conj} this already gives the
+refutation of Conjectures~23 and 24 in qualitative form. Proposition~\ref{p:hf} gives it with explicit constants, from
+OpenAI's fixed bound alone, and the exact value $3/2$ of the suprema needs Theorem~\ref{t:main}.
+\end{remark}
+
+\subsection{The triangle-free process}
+Costa, Luu, Wood and Yip \cite[Question~4.8]{CLWY} (numbered Question~21 in the HTML version of arXiv:2512.17114v2) ask: let
+$G$ be the complement of a random graph generated by the triangle-free process with $|V(G)|\ge4t-1$; as $t\to\infty$, does
+$G$ contain a connected matching of size $t$ asymptotically almost surely? The answer is yes. For a graph $F$ write $e(F)$ for
+its number of edges, $\Delta(F)$ for its maximum degree and $C_4(F)$ for its number of $4$-cycles (subgraphs isomorphic to
+$C_4$).
+
+\begin{proposition}\label{p:pairing}
+Let $G$ be a graph on $n\ge3$ vertices, let $F=\overline G$, and let $N$ be the least even integer with $N\ge n$. Then
+\[
+ \cm(G)\ \ge\ \Bigl\lfloor\frac n2\Bigr\rfloor-\frac{e(F)}{N-1}-\frac{C_4(F)}{(N-1)(N-3)} .
+\]
+\end{proposition}
+
+\begin{proof}
+If $n$ is odd, add one isolated dummy vertex; this gives $N$ vertices. Choose a uniformly random perfect matching $P$ of
+these $N$ vertices and remove the pair that contains the dummy, if any. The remaining $\lfloor n/2\rfloor$ pairs are
+disjoint pairs of vertices of $G$. A fixed pair $\{u,v\}$ is in $P$ with probability $1/(N-1)$, so the expected number of
+pairs that are edges of $F$ is $e(F)/(N-1)$. Two disjoint pairs $\{a,b\}$ and $\{c,d\}$ that are edges of $G$ fail to touch
+exactly when $ac$, $ad$, $bc$ and $bd$ are all edges of $F$, that is, when $a,c,b,d$ is a $4$-cycle of $F$ whose two pairs of
+opposite vertices are $\{a,b\}$ and $\{c,d\}$. Each $4$-cycle of $F$ determines its two pairs of opposite vertices, and both
+are in $P$ with probability $1/((N-1)(N-3))$. So the expected number of such failures is at most $C_4(F)/((N-1)(N-3))$.
+Delete from $P$ every pair that is an edge of $F$, and then one pair from every remaining failing couple. The rest is a
+connected matching of $G$, and its expected size is at least the right-hand side. So some choice of $P$ does at least as
+well.
+\end{proof}
+
+\begin{corollary}\label{c:tfp}
+Let $F$ be the final graph of the triangle-free process on $n$ vertices and $G=\overline F$. Then asymptotically almost
+surely $\cm(G)\ge n/2-O(\sqrt n\,\log^{3/2}n)$. In particular the answer to \cite[Question~4.8]{CLWY} is yes.
+\end{corollary}
+
+\begin{proof}
+$F$ is triangle-free, so every neighbourhood in $F$ is an independent set and $\Delta(F)\le\alpha(F)$. Bohman \cite{Boh}
+proved $\alpha(F)=O(\sqrt{n\log n})$ asymptotically almost surely. Moreover $e(F)\le n\Delta(F)/2$, and
+$C_4(F)\le n\Delta(F)^3/8$: a $4$-cycle is determined by a start vertex and the next three vertices along it, and it has eight
+such descriptions. Proposition~\ref{p:pairing} then gives $\cm(G)\ge n/2-O(\Delta(F))-O(\Delta(F)^3/n)
+=n/2-O(\sqrt n\,\log^{3/2}n)$. If $n\ge4t-1$ then $t\le(n+1)/4$, which is less than this bound for large $n$.
+\end{proof}
+
+\begin{remark}
+Random pairings with these two probabilities, and the count of non-touching couples through $4$-cycles of the complement,
+are used by Norin and Seymour \cite{NS} and by Yip \cite{Yip}, so Proposition~\ref{p:pairing} is a short corollary of
+their counts. The application to the triangle-free process is the new step.
+By Proposition~\ref{p:pairing}, every sequence of graphs with $\cm(G)=o(|V(G)|)$ and $e(\overline G)=o(|V(G)|^2)$ has
+$C_4(\overline G)\ge(1/2-o(1))|V(G)|^3$.
+\end{remark}
+
+
+\subsection{Three remarks checked by one reader}
+Each remark below was checked line by line by one reader other than its author. They are paper arguments.
+
+\begin{remark}[inflations with two clique orders]\label{r:infl}
+An \emph{inflation} of a graph $B$ replaces each vertex $x$ by a clique of order $c_x\ge0$, and joins the cliques of $x$ and
+$y$ completely when $xy\in E(B)$; it is \emph{proper} if every $c_x\ge1$ and \emph{$r$-uniform} if every $c_x=r$; write
+$B[K_r]$ for the $r$-uniform inflation. Costa, Luu, Wood and Yip \cite[Conjecture~1.14]{CLWY} conjecture that if $\alpha(B)=2$
+and $B$ satisfies a property from a list that includes $h\ge\chi$ and $h\ge|V|/2$, then every inflation of $B$ satisfies it.
+Uniform inflations keep $h\ge\chi$: $r$ copies of a clique model of $B$ give one of $B[K_r]$, and
+$\chi(B[K_r])\le r\chi(B)$. Two consecutive clique orders suffice to break it:
+
+\emph{For every integer $s\ge1$ there are arbitrarily large graphs $B$ with $\alpha(B)=2$ and $h(B)\ge\chi(B)=|V(B)|/2$ that have a
+proper inflation $I$, with all cliques of order $s$ or $s+1$, such that $h(I)<|V(I)|/2\le\chi_f(I)\le\chi(I)$.} So
+Conjecture~1.14 of \cite{CLWY} fails for $h\ge\chi$ and for $h\ge|V|/2$.
+
+\emph{Projection.} For every graph $G$ and $r\ge1$, $h(G[K_r])\le r\,h_f(G)$. Indeed the projections to $G$ of the branch sets
+of a $K_t$ model in $G[K_r]$ are connected and pairwise touch, and each vertex $v$ of $G$ lies in at most $r$ of them because
+the branch sets are disjoint and the clique of $v$ has $r$ vertices; weight $1/r$ on each branch set gives an admissible
+weighting of total $t/r$. (Fox \cite{Fox11} proves an equality of this kind; we need only this inequality.)
+
+\emph{Construction.} Let $G$ be a graph of Theorem~\ref{t:main} with $n$ vertices and $\omega=\omega(G)\le2\cm(G)+1$. Take a
+maximal family of $k$ vertex-disjoint induced paths on three vertices. The remaining vertices span a graph without induced
+three-vertex paths, so each of its components is a clique, and $\alpha(G)\le2$ allows at most two components; hence
+$n-2\omega\le3k\le n$. Let $a=n-2k$, add a clique $A$ of $a$ new vertices, fix a bijection $\pi$ from $A$ onto the $n-2k$ old
+vertices that are not ends of the $k$ paths, and join each $x\in A$ to every old vertex except $\pi(x)$. Call the result $B$.
+A new vertex $x$ has exactly one non-neighbour, $\pi(x)$, so $\alpha(B)=2$. The ends of each path and the pairs
+$\{x,\pi(x)\}$ split $V(B)$ into $k+a$ independent pairs, so $\chi(B)=k+a=|V(B)|/2$. Every old vertex outside a path is
+adjacent to one of its two ends (otherwise three independent vertices), and every new vertex is adjacent to both ends. So the
+$k$ paths followed by the $a$ new vertices form a clique model, in fact a dominating one in the sense of \cite{KWY}, of
+order $k+a$; hence $h(B)\ge\chi(B)$.
+
+\emph{Inflation.} Let $I$ replace each old vertex by a clique of order $s+1$ and each new vertex by a clique of order $s$, and
+let $N=(s+1)n+sa$. In a clique model of $I$ at most $sa$ branch sets meet the cliques of new vertices; the others form a clique
+model of $G[K_{s+1}]$. By the projection inequality and Proposition~\ref{p:hf},
+\[
+ h(I)\le sa+(s+1)h_f(G)\le sa+\tfrac{s+1}3\bigl(n+4\cm(G)+2\bigr).
+\]
+Since $a\le n-\tfrac23(n-2\omega)=(n+4\omega)/3$, this gives
+$N/2-h(I)\ge n/6-\tfrac{2s}3\omega-\tfrac{s+1}3(4\cm(G)+2)$, which is positive when $\beta$ is small in terms of $s$ and $n$
+is large. As $\alpha(I)=2$, $\chi_f(I)\ge N/2>h(I)$.
+\end{remark}
+
+\begin{remark}[a density gap for half-order minors]\label{r:dense}
+Norin and Seymour \cite{NS} proved that every graph with $\alpha(G)=2$ has a minor with $\lceil|V(G)|/2\rceil$ vertices and edge
+density at least $\gamma-o(1)$, where $\gamma=0.98688\ldots$. The best constant in that theorem is less than $1$:
+\emph{there are $\eps>0$ and infinitely many graphs $I$ with $\alpha(I)=2$ in which every minor with at least $|V(I)|/2$
+vertices has edge density at most $1-\eps$.}
+
+Fix a graph $B$ with $q$ vertices, $\alpha(B)=2$ and $\omega(B)+\cm(B)\le q/64$ (Theorem~\ref{t:main} gives one), and let
+$I=B[K_r]$, $n=rq$. Take a clique model in $I$ with $t\ge n/2$ branch sets, and let $E$ be the number of non-adjacent pairs of
+branch sets. If $u$ branch sets have at most two vertices, then $n\ge u+3(t-u)$, so $u\ge(3t-n)/2\ge n/4$. Keep each of these independently with
+probability $1/(4r)$; the expected number kept is at least $q/16$. At most $r$ such branch sets meet the clique of a fixed
+vertex of $B$, so the expected number of kept pairs whose projections to $B$ intersect is at most $q\binom r2/(16r^2)\le q/32$,
+and the expected number of kept non-adjacent pairs is at most $E/(16r^2)$. Delete one member of each such kept pair. The
+projections of the remaining kept branch sets are pairwise disjoint and pairwise adjacent sets with one or two vertices: the
+one-vertex sets form a clique and the two-vertex sets form a connected matching of $B$, so at most $\omega(B)+\cm(B)\le q/64$
+remain. Taking expectations, $q/16-q/32-E/(16r^2)\le q/64$, so $E\ge r^2q/4=n^2/(4q)$, and the minor misses at least
+$E/\binom t2\ge1/(2q)$ of its pairs. So $\eps=1/(2q)$ works for every $r$. (OpenAI's fixed bound already gives a base $B$ for
+the same argument with other constants.)
+\end{remark}
+
+\begin{remark}[strongly odd dominating models]\label{r:sod}
+Kawarabayashi, Wood and Yip \cite{KWY} define a \emph{strongly odd dominating} $K_t$-model as disjoint subtrees
+$T_1,\dots,T_t$ with a red/blue colouring of their vertices, such that every edge of each $T_i$ has both colours and, for
+$i<j$, every vertex of $T_j$ has a neighbour of its own colour in $T_i$; $\mathrm{had}_{\rm sod}(G)$ is the largest such $t$.
+They prove $\mathrm{had}_{\rm sod}(G)\ge|V(G)|/(3\alpha(G)-1)$ and give graphs with $\alpha=2$ and
+$\mathrm{had}_{\rm sod}\le|V|/4+O(\sqrt{|V|\log|V|})$. For $\alpha=2$ the constant $1/4$ is the right one:
+\emph{every nonempty graph with $\alpha(G)\le2$ has $\mathrm{had}_{\rm sod}(G)\ge\max\{\lceil|V(G)|/4\rceil,
+\lceil\chi(G)/2\rceil\}$, and every graph has $\mathrm{had}_{\rm sod}(G)\le|V(G)|/4+\omega(G)$}; so both constants are
+sharp on graphs with $\alpha=2$ and $\omega=o(|V|)$.
+
+Lower bound: colour an induced path $abcd$ red, blue, red, blue. Its red vertices $a,c$ are non-adjacent, as are its blue
+vertices $b,d$, so every other vertex has a neighbour of each colour on it ($\alpha\le2$). Remove induced four-vertex paths
+one after another, $k$ in all, until the rest $H$ has none. Then $H$ is a cograph, hence perfect, so
+$\omega(H)=\chi(H)\ge|V(H)|/2$. The $k$ paths followed by a maximum clique of $H$ as one-vertex red trees form a strongly odd
+dominating model of order $t=k+\omega(H)\ge(4k+|V(H)|)/4=|V(G)|/4$, and $\chi(G)\le2k+\chi(H)\le2t$.
+
+Upper bound: one-vertex trees must all have the same colour (a later one-vertex tree needs a neighbour of its own colour in
+an earlier one). For each colour, the trees with exactly one vertex of that colour have these vertices pairwise adjacent
+(the later one must see the earlier one). If $a_i$ trees have $i$ vertices, this gives $a_1\le\omega$ and
+$a_1+2a_2+a_3\le2\omega$ (a two-vertex tree has one vertex of each colour, a three-vertex path has one colour once). Then
+$|V(G)|\ge4t-3a_1-2a_2-a_3\ge4t-4\omega$.
+\end{remark}
+
 \section{A second route: the Colin de Verdi\`ere paper}\label{s:second}
 A second derivation, obtained independently (by GPT-6.2 Astra, before the first route was compared with it), uses the
 companion paper \cite{OAIC}. There the base graphs satisfy (G1): matchings of size $m/20$ split into classes of size at most
@@ -453,6 +661,12 @@ Theory} \textbf{23} (2003), 333--363.
 \bibitem{Sey} P.~Seymour, Hadwiger's conjecture, in \emph{Open Problems in Mathematics} (J.~F.~Nash Jr.\ and M.~Th.~Rassias,
 eds.), Springer, 2016, 417--437.
 \bibitem{Yip} J.~H.~Yip, Dense matchings of linear size in graphs with independence number 2, arXiv:2512.01401 (2025).
+\bibitem{Boh} T.~Bohman, The triangle-free process, \emph{Adv. Math.} \textbf{221} (2009), 1653--1677.
+\bibitem{Fox11} J.~Fox, Constructing dense graphs with sublinear Hadwiger number, arXiv:1108.4953 (2011).
+\bibitem{HW} D.~J.~Harvey and D.~R.~Wood, Parameters tied to treewidth, \emph{J. Graph Theory} (2017),
+  doi:10.1002/jgt.22030; arXiv:1312.3401v2.
+\bibitem{NS} S.~Norin and P.~Seymour, Dense minors of graphs with independence number two, \emph{J. Combin. Theory
+  Ser. B} \textbf{176} (2026), 101--110.
 \end{thebibliography}
 
 \end{document}
